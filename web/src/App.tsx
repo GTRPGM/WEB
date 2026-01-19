@@ -5,7 +5,6 @@ import './App.css'
 import Navbar from './components/navbar'
 import ChatLog from './components/chatlog'
 import ChatInput from './components/chatinput'
-import Sidebar from './components/sidebar'
 
 interface Message {
   role: string;
@@ -45,8 +44,6 @@ function App() {
         <ChatInput onSend={handleSendMessage} />
 
       </div>
-
-      <Sidebar />
     </div>
   );
 }

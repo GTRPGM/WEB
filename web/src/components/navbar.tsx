@@ -1,23 +1,53 @@
+import { useState } from "react";
+
 export default function Navbar() {
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
     return (
         <div className="navbar w-full border-b border-gray-200 px-4">
-          <label htmlFor="my-drawer" className="btn btn-ghost btn-sm drawer-button mr-2 px-1">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={1.5} 
-              stroke="currentColor" 
-              className="w-6 h-6"
+          <div className="flex-1 flex items-center">
+            <span className="font-bold text-lg">TRPG</span>
+          </div>
+
+          <div className="realtive">
+            <button
+              onClick={() => setIsStatusOpen(!isStatusOpen)}
+              className={`btn border rounded-lg px-3 trainsition-colors ${
+                isStatusOpen
+                  ? 'btn-primary border-primary'
+                  : 'border-gray-200 hover:bg-gray-100'
+                  }`}
             >
-              <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" 
-              />
-            </svg>
-          </label>
-          <span className="font-bold text-lg">TRPG</span>
+              <span className={isStatusOpen ? 'text-white' : 'text-gray-700 font-bold'}>status</span>
+            </button>
+
+            {isStatusOpen && (
+              <div className="absolute right-0 z-[101] card card-compact w-72 p-2 shadow-xl bg-white border border-gray-100 mt-1">
+                <div className="card-body">
+                  <h3 className="text-sm font-bold text-gray-800 border-b pb-2 mb-2">캐릭터 상태</h3>
+
+                  <div className="py-2 space-y-3">
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                       <span className="font-bold text-red-500">HP</span>
+                       <span className="text-gray-600">80 / 100</span> {/*수정필요*/}
+                      </div>
+                      <progress className="progress progress-error w-full h-2" value="80" max="100"></progress>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="font-bold text-blue-500">MP</span>
+                        <span className="text-gray-600">45 / 50</span>
+                      </div>
+                      <progress className="progress progress-info w-full h-2" value="45" max="100"></progress>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
         </div>
     );
 }
