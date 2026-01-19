@@ -22,9 +22,9 @@ export default function ChatLog({messages}: ChatLogProps) {
     }, [messages]);
 
     return (
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          
-            {/* GM */}
+        <div className="flex-1 items-center overflow-y-auto p-6 space-y-4">
+            <div className="flex flex-col w-full max-w-4xl mx-auto">
+                {/* GM */}
             <div className="flex items-start gap-3 hover:bg-gray-50 p-1 rounded-lg transition-colors group">
                <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold shrink-0">
                   GM
@@ -56,6 +56,9 @@ export default function ChatLog({messages}: ChatLogProps) {
             ))}
 
             <div ref={scrollRef}/>
+            </div>
+          
+            
 
         </div>
     );
