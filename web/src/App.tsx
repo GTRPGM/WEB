@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Login from './components/login'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -15,14 +16,21 @@ interface Message {
 }
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState({ name: '' });
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const handleLoginSuccess = (name: string) => {
+    setUserProfile({ name });
+    setIsLoggedIn(true);
+  }
 
   const handleSendMessage = (text: string) => {
     if (!text.trim()) return;
 
     const newMessage: Message = {
       role: 'player',
-      name: 'player',
+      name: userProfile.name,
       content: text,
       time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
       color: 'bg-gray-500'
@@ -30,6 +38,10 @@ function App() {
 
     setMessages((prev) => [...prev, newMessage]);
   };
+
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={handleLoginSuccess}  />;
+  }
 
   return (
     <div className="drawer h-screen overflow-hidden">
