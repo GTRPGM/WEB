@@ -1,6 +1,11 @@
 import { useState } from "react";
+interface NavbarProps {
+  userProfile: {
+    name:string;
+  };
+}
 
-export default function Navbar() {
+export default function Navbar({ userProfile }: NavbarProps) {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
     return (
         <div className="navbar w-full border-b border-gray-200 px-4">
@@ -8,10 +13,10 @@ export default function Navbar() {
             <span className="font-bold text-lg">TRPG</span>
           </div>
 
-          <div className="realtive">
+          <div className="relative">
             <button
               onClick={() => setIsStatusOpen(!isStatusOpen)}
-              className={`btn border rounded-lg px-3 trainsition-colors ${
+              className={`btn border rounded-lg px-3 transition-colors ${
                 isStatusOpen
                   ? 'btn-primary border-primary'
                   : 'border-gray-200 hover:bg-gray-100'
@@ -24,6 +29,13 @@ export default function Navbar() {
               <div className="absolute right-0 z-[101] card card-compact w-72 p-2 shadow-xl bg-white border border-gray-100 mt-1">
                 <div className="card-body">
                   <h3 className="text-sm font-bold text-gray-800 border-b pb-2 mb-2">캐릭터 상태</h3>
+                  
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text=[11px] text-gray-800 font-bold">
+                      [ {userProfile.name} ]
+                    </span>
+                  </div>
+                
 
                   <div className="py-2 space-y-3">
                     <div>

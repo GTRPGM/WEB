@@ -6,16 +6,26 @@ interface LoginProps {
 
 export default function Login({ onLoginSuccess }: LoginProps) {
     const [step, setStep] = useState<'start' | 'name'>('start');
-    const [userName, setUserName] = useState('');
+    const [inputName, setInputName] = useState('');
+    const [id, setId] = useState('');
+    const [pw, setPw] = useState('');
 
     const handleStartSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setStep('name');
+
+        const MOCK_ID = "GTRPG";
+        const MOCK_PW = "1234"; {/* API 연결 후 수정 필요 */}
+
+        if (id === MOCK_ID && pw === MOCK_PW) {
+            setStep('name');
+        } else {
+            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        }
     }
 
     const handleJoinWorld = () => {
-        if (userName.trim()) {
-            onLoginSuccess(userName);
+        if (inputName.trim()) {
+            onLoginSuccess(inputName);
         }
     };
 
@@ -34,11 +44,15 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                             <div className="form-control w-full gap-4">
                                 <input
                                     type="text"
+                                    value={id}
+                                    onChange={(e) => setId(e.target.value)}
                                     placeholder="Username"
                                     className="input input-bordered w-full focus:input-primary"
                                 />
                                 <input
                                     type="password"
+                                    value={pw}
+                                    onChange={(e) => setPw(e.target.value)}
                                     placeholder="Password"
                                     className="input input-bordered w-full focus:input-primary"
                                 />
@@ -69,14 +83,14 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                             type="text"
                             placeholder="이름"
                             className="input input-border w-full focus:input primary text-center text-lg"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
+                            value={inputName}
+                            onChange={(e) => setInputName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleJoinWorld()}
                         />
 
                         <button
                             onClick={handleJoinWorld}
-                            disabled={!userName.trim()}
+                            disabled={!inputName.trim()}
                             className="btn btn-primary w-full mt-4 text-white font-bold"
                         >
                             시작하기

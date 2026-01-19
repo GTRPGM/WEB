@@ -15,13 +15,22 @@ interface Message {
   color: string;
 }
 
+interface UserProfile {
+  name: string;
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState({ name: '' });
+
+  const [userProfile, setUserProfile] = useState<UserProfile>({ name: '' });
+
   const [messages, setMessages] = useState<Message[]>([]);
 
   const handleLoginSuccess = (name: string) => {
-    setUserProfile({ name });
+    setUserProfile((prev) => ({
+      ...prev,
+      name: name
+    }));
     setIsLoggedIn(true);
   }
 
@@ -49,7 +58,7 @@ function App() {
       
       <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
 
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar /></div>
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar userProfile={userProfile}/></div>
     
         <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
 
