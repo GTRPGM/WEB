@@ -1,12 +1,11 @@
 import { useState } from "react";
-interface NavbarProps {
-  userProfile: {
-    name:string;
-  };
-}
+import { useUserStore } from "../store/useUserStore";
 
-export default function Navbar({ userProfile }: NavbarProps) {
+export default function Navbar() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+
+  const userProfile = useUserStore((state) => state.userProfile);
+
     return (
         <div className="navbar w-full border-b border-gray-200 px-4">
           <div className="flex-1 flex items-center">
@@ -19,7 +18,7 @@ export default function Navbar({ userProfile }: NavbarProps) {
               className={`btn border rounded-lg px-3 transition-colors ${
                 isStatusOpen
                   ? 'btn-primary border-primary'
-                  : 'border-gray-200 hover:bg-gray-100'
+                  : 'border-gray-200 hover:bg-gray-100 text-gray-700'
                   }`}
             >
               <span className={isStatusOpen ? 'text-white' : 'text-gray-700 font-bold'}>status</span>
@@ -32,7 +31,7 @@ export default function Navbar({ userProfile }: NavbarProps) {
                   
                   <div className="flex items-center gap-1 mb-1">
                     <span className="text=[11px] text-gray-800 font-bold">
-                      [ {userProfile.name} ]
+                      [ {userProfile?.name} ]
                     </span>
                   </div>
                 
