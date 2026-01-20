@@ -1,12 +1,10 @@
 import { useState } from "react";
-interface NavbarProps {
-  userProfile: {
-    name:string;
-  };
-}
+import { useUserStore } from "../store/useUserStore";
 
-export default function Navbar({ userProfile }: NavbarProps) {
+export default function Navbar() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const userProfile = useUserStore((state) => state.userProfile);
+
     return (
         <div className="navbar w-full border-b border-gray-200 px-4">
           <div className="flex-1 flex items-center">
@@ -32,7 +30,7 @@ export default function Navbar({ userProfile }: NavbarProps) {
                   
                   <div className="flex items-center gap-1 mb-1">
                     <span className="text=[11px] text-gray-800 font-bold">
-                      [ {userProfile.name} ]
+                      [ {userProfile?.name} ]
                     </span>
                   </div>
                 

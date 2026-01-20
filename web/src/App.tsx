@@ -1,71 +1,23 @@
-import { useState } from 'react'
-import Login from './components/login'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import withAuth from './hoc/withAuth';
+import GameMain from './pages/gamemain';
+import Login from './pages/login'
 import './App.css'
-import Navbar from './components/navbar'
-import ChatLog from './components/chatlog'
-import ChatInput from './components/chatinput'
+import CreateChar from './pages/create-char';
 
-interface Message {
-  role: string;
-  name: string;
-  content: string;
-  time: string;
-  color: string;
-}
-
-interface UserProfile {
-  name: string;
-}
+const ProtectedCreateChar = withAuth(CreateChar);
+const ProtectedGameboard = withAuth(GameMain);
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const [userProfile, setUserProfile] = useState<UserProfile>({ name: '' });
-
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  const handleLoginSuccess = (name: string) => {
-    setUserProfile((prev) => ({
-      ...prev,
-      name: name
-    }));
-    setIsLoggedIn(true);
-  }
-
-  const handleSendMessage = (text: string) => {
-    if (!text.trim()) return;
-
-    const newMessage: Message = {
-      role: 'player',
-      name: userProfile.name,
-      content: text,
-      time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
-      color: 'bg-gray-500'
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-  };
-
-  if (!isLoggedIn) {
-    return <Login onLoginSuccess={handleLoginSuccess}  />;
-  }
-
   return (
-    <div className="drawer h-screen overflow-hidden">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      
-      <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
-
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar userProfile={userProfile}/></div>
-    
-        <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
-
-        <ChatInput onSend={handleSendMessage} />
-
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/login' element={<Login/>} />
+        <Route path='/create-char' element={<ProtectedCreateChar />} />
+        <Route path='/GameMain' element={<ProtectedGameboard />} />
+        <Route path='*' element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
