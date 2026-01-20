@@ -3,7 +3,6 @@ import { useUserStore } from "../store/useUserStore";
 
 export default function Navbar() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
-
   const userProfile = useUserStore((state) => state.userProfile);
 
     return (

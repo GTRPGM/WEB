@@ -13,8 +13,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/login' element={<Login/>} />
-        <Route path='/create-char' element={<CreateChar />} />
-        <Route path='/GameMain' element={<GameMain />} />
+        <Route path='/create-char' element={<ProtectedCreateChar />} />
+        <Route path='/GameMain' element={<ProtectedGameboard />} />
         <Route path='*' element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
