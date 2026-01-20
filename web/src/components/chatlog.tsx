@@ -26,12 +26,12 @@ export default function ChatLog({messages}: ChatLogProps) {
             <div className="flex flex-col w-full max-w-4xl mx-auto">
                 {/* GM */}
             <div className="flex items-start gap-3 hover:bg-gray-50 p-1 rounded-lg transition-colors group">
-               <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold shrink-0">
+               <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold shrink-0 mt-[1px]">
                   GM
                </div>
                 <div>
                    <div className="flex items-center gap-2">
-                        <span className="font-bold text-blue-600">GM</span>
+                        <span className="font-bold text-blue-600 leading-none">GM</span>
                         <span className="text-xs text-gray-400">오후 12:45</span>
                    </div>
                     <p className="mt-1 leading-relaxed">안녕하세요.</p>
@@ -42,12 +42,12 @@ export default function ChatLog({messages}: ChatLogProps) {
 
             {messages.map((msg, index) => (
                 <div key={index} className="flex items-start gap-3 hover:bg-gray-50 p-1 rounded-lg transition-colors group">
-                    <div className={`w-10 h-10 rounded ${msg.color || 'bg-gray-500'} text-white flex items-center justify-center font-bold shrink-0`}>
+                    <div className={`w-10 h-10 rounded ${msg.color || 'bg-gray-500'} text-white flex items-center justify-center font-bold shrink-0 mt-[1px]`}>
                         {msg.name ? msg.name[0].toUpperCase() : 'P'}
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900">{msg.name}</span>
+                            <span className="font-bold text-gray-900 leading-none">{msg.name}</span>
                             <span className="text-xs text-gray-400">{msg.time}</span>
                         </div>
                         <p className="mt-1 leading-relaxed text-gray-800">{msg.content}</p>
