@@ -4,12 +4,15 @@ import Navbar from '../components/navbar'
 import ChatLog from '../components/chatlog'
 import ChatInput from '../components/chatinput'
 import type { Message } from '../types'
+import { useChatStore } from '../store/useChatStore'
+import { api } from "../apiinterceptor";
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
   const [messages, setMessages] = useState<Message[]>([]);
+  const { addMessage, setGmthinking } = useChatStore();
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
     const newMessage: Message = {
@@ -19,6 +22,21 @@ export default function GameMain() {
       time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
       color: 'bg-gray-500'
     };
+
+    addMessage(userProfile.name, text);
+
+    setGmthinking(true);
+
+    try {
+      const res = await api.post('/chat/generate', { prompt: text });
+
+      addMessage('GM', res.data.data.content);
+    } catch (error) {
+      console.error("통신 실패: ", error);
+      addMessage('GM', '다시 시도해주세요.');
+    } finally {
+      setGmthinking(false);
+    }
 
     setMessages((prev) => [...prev, newMessage]);
   };

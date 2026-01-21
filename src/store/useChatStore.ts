@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import type { Message } from '../types';
 import { useUserStore } from './useUserStore';
 
-const myName = useUserStore((state) => state.userProfile.name);
-
 const getSenderColor = (sender: string) => {
+
+    const myName = useUserStore.getState().userProfile.name;
+
     switch (sender) {
         case 'GM': return 'bg-blue-500';
         case myName: return 'bg-gray-500';
@@ -31,6 +32,7 @@ export const useChatStore = create<ChatState>((set) => ({
         }
     ],
     isGMThinking: false,
+
 
     addMessage: (sender, content) => set((state) => ({
         messages: [
