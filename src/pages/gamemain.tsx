@@ -1,26 +1,80 @@
-import { useState } from 'react'
 import { useUserStore } from '../store/useUserStore'
 import Navbar from '../components/navbar'
 import ChatLog from '../components/chatlog'
 import ChatInput from '../components/chatinput'
-import type { Message } from '../types'
+import { useChatStore } from '../store/useChatStore'
+import { api } from "../apiinterceptor";
+import { useEffect, useRef } from 'react'
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages, addMessage, setGmthinking } = useChatStore();
+  const isInitialFetched = useRef(false);
 
-  const handleSendMessage = (text: string) => {
+  const fetchFirstGMMessage = async () => {
+
+    if (isInitialFetched.current || messages.length > 0) return 0;
+
+    isInitialFetched.current = true;
+    setGmthinking(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // 수정 필요
+      const res = await api.post('/chat/generate', { prompt: "게임 시작 오프닝을 들려줘 "});
+      
+      if (res.data?.data?.content) {
+        addMessage('GM', res.data.data.content);
+      }
+    } catch (error) {
+      console.error("오프닝 로딩 실패:", error);
+      addMessage('GM', '아직 시작하지 않았습니다. (연결 실패)');
+    } finally {
+      setGmthinking(false);
+    }
+  };
+
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      fetchFirstGMMessage();
+    }
+  }, []);
+
+  const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
+    
+    addMessage(userProfile.name, text);
 
-    const newMessage: Message = {
-      id: 'player',
+    addMessage(userProfile.name, text);
+
+   /* const newMessage: Message = {
+      id: `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       sender: userProfile.name,
       content: text,
       time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
       color: 'bg-gray-500'
-    };
+    }; */
 
-    setMessages((prev) => [...prev, newMessage]);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setGmthinking(true);
+    
+    /* await new Promise(resolve => setTimeout(resolve, 2000));
+    add Message('GM', '서버 대신 대답하는 임시 메세지입니다!');
+    setGmthinking(false); return; */
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const res = await api.post('/chat/generate', { prompt: text });
+
+      if (res.data?.data?.content) {addMessage('GM', res.data.data.content);}
+    } catch (error) {
+      console.error("통신 실패: ", error);
+      addMessage('GM', '다시 시도해주세요.');
+    } finally {
+      setGmthinking(false);
+    }
   };
 
   return (

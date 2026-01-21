@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { useUserStore } from "../store/useUserStore";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const userProfile = useUserStore((state) => state.userProfile);
+  const logout = useAuthStore((state) => state.clearTokens);
+  const clearUser = useUserStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    if (clearUser) clearUser();
+    navigate('/login', { replace: true });
+  }
 
     return (
         <div className="navbar w-full border-b border-gray-200 px-4">
@@ -32,6 +43,11 @@ export default function Navbar() {
                     <span className="text=[11px] text-gray-800 font-bold">
                       [ {userProfile?.name} ]
                     </span>
+
+                    <button
+                        onClick = {handleLogout}
+                        className="text-[9px] text-gray-400 hover: text-gray-100 hover:underline transition-colors"
+                    >로그아웃</button>
                   </div>
                 
 

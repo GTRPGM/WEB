@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import type { Message } from '../types';
 import { useUserStore } from './useUserStore';
 
-const myName = useUserStore((state) => state.userProfile.name);
-
 const getSenderColor = (sender: string) => {
+
+    const myName = useUserStore.getState().userProfile.name;
+
     switch (sender) {
         case 'GM': return 'bg-blue-500';
         case myName: return 'bg-gray-500';
@@ -21,25 +22,18 @@ interface ChatState {
 }
 
 export const useChatStore = create<ChatState>((set) => ({
-    messages: [
-        {
-            id: '1',
-            sender: 'GM',
-            content: '안녕하세요',
-            time: new Date().toLocaleDateString(),
-            color: getSenderColor('GM'),
-        }
-    ],
+    messages: [],
     isGMThinking: false,
+
 
     addMessage: (sender, content) => set((state) => ({
         messages: [
             ...state.messages,
             {
-                id: Date.now().toString(),
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 sender,
                 content,
-                time: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 color: getSenderColor(sender),
             }
         ]
