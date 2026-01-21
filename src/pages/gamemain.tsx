@@ -44,6 +44,8 @@ export default function GameMain() {
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
+    
+    addMessage(userProfile.name, text);
 
     addMessage(userProfile.name, text);
 
