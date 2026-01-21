@@ -17,7 +17,7 @@ export default function Navbar() {
               className={`btn border rounded-lg px-3 transition-colors ${
                 isStatusOpen
                   ? 'btn-primary border-primary'
-                  : 'border-gray-200 hover:bg-gray-100'
+                  : 'border-gray-200 hover:bg-gray-100 text-gray-700'
                   }`}
             >
               <span className={isStatusOpen ? 'text-white' : 'text-gray-700 font-bold'}>status</span>

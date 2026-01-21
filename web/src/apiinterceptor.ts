@@ -1,12 +1,18 @@
 import axios from 'axios';
 import { useAuthStore } from './store/useAuthStore';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const api = axios.create({
-    baseURL: '', /* 수정 필요 */
+    baseURL: BASE_URL, /* 수정 필요 */
+    withCredentials: true,
+    headers: {
+        'content-type': 'application/json',
+    },
 });
 
 api.interceptors.request.use((config) => {
-    const token = useAuthStore.getState().accessToken;
+    const token = useAuthStore.getState().access_token;
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,13 +27,13 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const { refreshToken } = useAuthStore.getState();
+                const { refresh_token } = useAuthStore.getState();
 
-                const res = await axios.post('/auth/refresh', { refreshToken });
-                const { accessToken, newRefreshToken } = res.data;
+                const res = await axios.post('/auth/refresh', { refresh_token });
+                const { access_token, newRefreshToken } = res.data;
 
-                useAuthStore.getState().setTokens(accessToken, newRefreshToken);
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                useAuthStore.getState().setTokens(access_token, newRefreshToken);
+                originalRequest.headers.Authorization = `Bearer ${access_token}`;
                 return api(originalRequest);
             } catch (refreshError) {
                 useAuthStore.getState().clearTokens();

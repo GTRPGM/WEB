@@ -13,8 +13,8 @@ export default function GameMain() {
     if (!text.trim()) return;
 
     const newMessage: Message = {
-      role: 'player',
-      name: userProfile.name,
+      id: 'player',
+      sender: userProfile.name,
       content: text,
       time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
       color: 'bg-gray-500'
@@ -29,7 +29,7 @@ export default function GameMain() {
       
       <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
 
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar/></div>
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar /></div>
     
         <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
 

@@ -16,18 +16,17 @@ export default function Login() {
         e.preventDefault();
 
         try {
-            const res = await api.post('/auth/login', { id, password: pw });
+            const res = await api.post('/auth/login', { username: id, password: pw });
 
-            const { accessToken, refreshToken, hasCharacter } = res.data;
+            const { access_token, refresh_token } = res.data.data;
 
-            setTokens(accessToken, refreshToken);
+            setTokens(access_token, refresh_token);
             setAuthSuccess();
 
-            if (hasCharacter) {
-                navigate('/game');
-            } else {
-                navigate('/create-char');
-            }
+            console.log("로그인 상태 확인: ", useUserStore.getState().isLoggedIn);
+            
+            setTimeout(() => {navigate('/create-char');}, 200);
+
         } catch (error) {
             alert("아이디 또는 비밀번호가 틀렸습니다.");
         }
