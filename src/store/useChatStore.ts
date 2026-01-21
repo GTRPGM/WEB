@@ -22,15 +22,7 @@ interface ChatState {
 }
 
 export const useChatStore = create<ChatState>((set) => ({
-    messages: [
-        {
-            id: '1',
-            sender: 'GM',
-            content: '안녕하세요',
-            time: new Date().toLocaleDateString(),
-            color: getSenderColor('GM'),
-        }
-    ],
+    messages: [],
     isGMThinking: false,
 
 
@@ -38,10 +30,10 @@ export const useChatStore = create<ChatState>((set) => ({
         messages: [
             ...state.messages,
             {
-                id: Date.now().toString(),
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 sender,
                 content,
-                time: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 color: getSenderColor(sender),
             }
         ]
