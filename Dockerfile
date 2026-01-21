@@ -1,22 +1,23 @@
 FROM nginx:stable-alpine
 
+# 빌드 인자 정의
 ARG WEB_PORT
 
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
-
-# 빌드된 정적 파일 복사
 COPY dist .
 
-# Nginx 설정: 8080 포트 리스닝 및 SPA 라우팅 지원
-RUN echo 'server { \
-    listen ${WEB_PORT}; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html; \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# 포트 변수를 실제 값으로 치환하여 설정 파일 생성
+# 큰따옴표 내에서 변수를 확실히 처리하기 위해 구문을 수정했습니다.
+RUN printf "server { \n\
+    listen %s; \n\
+    location / { \n\
+        root /usr/share/nginx/html; \n\
+        index index.html; \n\
+        try_files \$uri \$uri/ /index.html; \n\
+    } \n\
+}" "${WEB_PORT}" > /etc/nginx/conf.d/default.conf
 
 EXPOSE ${WEB_PORT}
+
 CMD ["nginx", "-g", "daemon off;"]
