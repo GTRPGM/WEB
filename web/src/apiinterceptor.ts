@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from './store/useAuthStore';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const api = axios.create({
-    baseURL: 'http://35.216.98.244:8010', /* 수정 필요 */
+    baseURL: BASE_URL, /* 수정 필요 */
     withCredentials: true,
     headers: {
         'content-type': 'application/json',
