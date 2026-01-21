@@ -10,10 +10,10 @@ interface AuthState extends AuthInfo {
 export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
-            accessToken: null,
-            refreshToken: null,
-            setTokens: (access, refresh) => set({ accessToken: access, refreshToken: refresh }),
-            clearTokens: () => set({ accessToken: null, refreshToken: null }),
+            access_token: null,
+            refresh_token: null,
+            setTokens: (access, refresh) => set({ access_token: access, refresh_token: refresh }),
+            clearTokens: () => set({ access_token: null, refresh_token: null }),
         }),
         {
             name: 'auth-storage',

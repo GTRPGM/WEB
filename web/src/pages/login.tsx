@@ -16,11 +16,11 @@ export default function Login() {
         e.preventDefault();
 
         try {
-            const res = await api.post('/auth/login', { id, password: pw });
+            const res = await api.post('/auth/login', { username: id, password: pw });
 
-            const { accessToken, refreshToken, hasCharacter } = res.data;
+            const { access_token, refresh_token, hasCharacter } = res.data;
 
-            setTokens(accessToken, refreshToken);
+            setTokens(access_token, refresh_token);
             setAuthSuccess();
 
             if (hasCharacter) {

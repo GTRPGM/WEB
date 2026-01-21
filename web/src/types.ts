@@ -3,8 +3,8 @@ export interface UserProfile {
 }
 
 export interface AuthInfo {
-    accessToken: string | null;
-    refreshToken: string | null;
+    access_token: string | null;
+    refresh_token: string | null;
 }
 
 export interface Message {
