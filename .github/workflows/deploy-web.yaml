@@ -1,0 +1,82 @@
+name: GTRPGM Web CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Vite 빌드 (결과물은 dist 폴더에 생성됨)
+      - name: Build Vite
+        run: yarn build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+
+      # 빌드 결과물(dist)과 Dockerfile만 전송
+      - name: Copy build files via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          source: "dist,Dockerfile"
+          target: "/home/${{ secrets.REMOTE_USER }}/app/web"
+          rm: true
+
+      # 서버에서 Docker 이미지 빌드 및 컨테이너 실행
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.REMOTE_USER }}/app/web
+            
+            echo "Backing up old container..."
+            docker stop web-old || true
+            docker rm web-old || true
+            docker rename web web-old || true
+
+            echo "Packaging image..."
+            docker build \
+              --build-arg WEB_PORT=${{ secrets.WEB_PORT }} \
+              -t web:latest .
+            
+            echo "Starting container..."
+            docker run -d \
+              --name web \
+              -p ${{ secrets.WEB_PORT }}:${{ secrets.WEB_PORT }} \
+              --restart always \
+              web:latest
+            
+            sleep 10
+            if [ "$(docker inspect -f '{{.State.Running}}' web)" = "true" ]; then
+              echo "✅ 배포 성공: 이전 버전 삭제"
+              docker stop web-old || true
+              docker rm web-old || true
+            else
+              echo "❌ 배포 실패: 롤백합니다."
+              docker stop web || true
+              docker rm web || true
+              docker rename web-old web || true
+              docker start web || true
+              exit 1
+            fi
+            docker image prune -f

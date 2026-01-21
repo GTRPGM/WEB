@@ -1,0 +1,88 @@
+name: ASSA-WEB CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'assa-web/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: ./assa-web
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: 'assa-web/yarn.lock'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # GitHub Actions 가상 머신에서 빌드
+      - name: Build Next.js
+        run: yarn build
+        env:
+          NEXT_PUBLIC_SERVER_HOST: ${{ secrets.NEXT_PUBLIC_SERVER_HOST }}
+
+      # 빌드 결과물(.next)과 실행에 필요한 파일들만 전송
+      - name: Copy build files via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          # 빌드된 폴더와 실행 파일 전송
+          source: "assa-web/.next,assa-web/public,assa-web/package.json,assa-web/yarn.lock,assa-web/node_modules,assa-web/Dockerfile"
+          target: "/home/${{ secrets.REMOTE_USER }}/app/assa-web"
+          strip_components: 1
+          rm: true
+
+      # 서버에서는 빌드 없이 이미지 생성만 수행
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.REMOTE_USER }}/app/assa-web
+            
+            echo "Backing up old container..."
+            docker stop assa-web-old || true
+            docker rm assa-web-old || true
+            docker rename assa-web assa-web-old || true
+
+            echo "Packaging image..."
+            docker build -t assa-web:latest .
+            
+            echo "Starting container..."
+            docker run -d \
+              --name assa-web \
+              -p 3000:3000 \
+              --restart always \
+              assa-web:latest
+            
+            # 10초 대기 후 상태 확인
+            sleep 10
+            if [ "$(docker inspect -f '{{.State.Running}}' assa-web)" = "true" ]; then
+              echo "✅ 배포 성공: 이전 버전 삭제"
+              docker stop assa-web-old || true
+              docker rm assa-web-old || true
+            else
+              echo "❌ 배포 실패: 롤백합니다."
+              docker stop assa-web || true
+              docker rm assa-web || true
+              docker rename assa-web-old assa-web || true
+              docker start assa-web || true
+              exit 1
+            fi
+            docker image prune -f
