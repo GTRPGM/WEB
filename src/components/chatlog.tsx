@@ -21,23 +21,9 @@ export default function ChatLog({ messages }: ChatLogProps) {
             <div className="flex flex-col w-full max-w-4xl mx-auto">
 
                 { messages.map((msg) => {
-                    {isGMThinking && (
-                        <div className="flex items-start gap-3 p-1 animate-pulse">
-                            <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold shrink-0">
-                                G
-                            </div>
-                            <div className="bg-gray-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-500">
-                                    GM이 상황을 묘사하고 있습니다
-                                </span>
-                                <span className="loading loading-dots loading-xs text-primary"></span>
-                            </div>
-                        </div>
-                    )}
-
+                    
                     const isGM = msg.sender === 'GM';
-                
-                return (
+                    return (
                     <div key={msg.id} className="flex items-start gap-3 hover:bg-gray-50 p-1 rounded-lg transition-colors group">
                         <div className={`w-10 h-10 rounded ${msg.color || 'bg-gray-500'} text-white flex items-center justify-center font-bold shrink-0 mt-[1px]`}>
                             {msg.sender ? msg.sender[0].toUpperCase() : 'P'}
@@ -52,6 +38,18 @@ export default function ChatLog({ messages }: ChatLogProps) {
                     </div>
                     );
                 })}
+
+                {isGMThinking && (
+                    <div className="flex items-start gap-3 p-1 animate-pulse">
+                        <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold shrink-0">
+                            G
+                        </div>
+                        <div className="bg-gray-100 px-3 py-2 rounded-2xl rounded-tl-none shadow-sm flex items-center justify-center h-9">
+                            <span className="loading loading-dots loading-m text-primary"></span>
+                        </div>
+                    </div>
+                )}
+
                 <div ref={scrollRef} />
             </div>
         </div>
