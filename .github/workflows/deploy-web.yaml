@@ -49,17 +49,20 @@ jobs:
           script: |
             cd /home/${{ secrets.REMOTE_USER }}/app/web
             
-            echo "Backing up old container..."
-            docker stop web-old || true
-            docker rm web-old || true
-            docker rename web web-old || true
-
             echo "Packaging image..."
             docker build \
               --build-arg WEB_PORT=${{ secrets.WEB_PORT }} \
               -t web:latest .
             
-            echo "Starting container..."
+            echo "Backing up & Stopping old container..."
+            docker rm -f web-old || true
+            
+            if [ "$(docker ps -aq -f name=^web$)" ]; then
+              docker stop web || true
+              docker rename web web-old || true
+            fi
+            
+            echo "Starting new container..."
             docker run -d \
               --name web \
               -p ${{ secrets.WEB_PORT }}:${{ secrets.WEB_PORT }} \
@@ -69,12 +72,10 @@ jobs:
             sleep 10
             if [ "$(docker inspect -f '{{.State.Running}}' web)" = "true" ]; then
               echo "✅ 배포 성공: 이전 버전 삭제"
-              docker stop web-old || true
-              docker rm web-old || true
+              docker rm -f web-old || true
             else
               echo "❌ 배포 실패: 롤백합니다."
-              docker stop web || true
-              docker rm web || true
+              docker rm -f web || true
               docker rename web-old web || true
               docker start web || true
               exit 1
