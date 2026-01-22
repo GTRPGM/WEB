@@ -11,7 +11,7 @@ export const useNPCStore = create<NPCState>((set) => ({
     enemies: [],
     fetchEnemies: async () => {
         try {
-            const res = await api.get('/info/enemies');
+            const res = await api.post('/info/enemies', {});
             if (res.data?.data) {
                 set({ enemies: res.data.data })
             }
