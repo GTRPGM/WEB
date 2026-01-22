@@ -14,3 +14,11 @@ export interface Message {
   time: string;
   color: string;
 }
+
+export interface NPC {
+    id: string;
+    name: string;
+    hp: number;
+    maxHp: number;
+    description: string;
+  }
