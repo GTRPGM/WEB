@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { api } from "../apiinterceptor";
 
 export default function Login() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const hasAlerted = useRef(false);
     const setTokens = useAuthStore((state) => state.setTokens);
     const setAuthSuccess = useUserStore((state) => state.setAuthSuccess);
 
@@ -31,6 +33,16 @@ export default function Login() {
             alert("아이디 또는 비밀번호가 틀렸습니다.");
         }
     };
+
+    useEffect(() => {
+        if (location.state?.needLogin && !hasAlerted.current) {
+            alert("로그인이 필요합니다.");
+
+            hasAlerted.current = true;
+
+            navigate('/login', { replace: true, state: {} });
+        }
+    }, [location, navigate]);
 
     return(
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
