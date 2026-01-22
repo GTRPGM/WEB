@@ -5,6 +5,7 @@ import ChatInput from '../components/chatinput'
 import { useChatStore } from '../store/useChatStore'
 import { api } from "../apiinterceptor";
 import { useEffect, useRef } from 'react'
+import EnemySidebar from '../components/sidebar'
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
@@ -47,8 +48,6 @@ export default function GameMain() {
     
     addMessage(userProfile.name, text);
 
-    addMessage(userProfile.name, text);
-
    /* const newMessage: Message = {
       id: `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       sender: userProfile.name,
@@ -78,9 +77,9 @@ export default function GameMain() {
   };
 
   return (
-    <div className="drawer h-screen overflow-hidden">
+    <div className="drawer lg:drawer-open h-screen overflow-hidden">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      
+    
       <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
 
         <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar /></div>
@@ -88,7 +87,11 @@ export default function GameMain() {
         <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
 
         <ChatInput onSend={handleSendMessage} />
+      </div>
 
+      <div className='drawer-side'>
+        <label htmlFor='my-drawer' className='drawer-overlay'></label>
+        <EnemySidebar />
       </div>
     </div>
   );
