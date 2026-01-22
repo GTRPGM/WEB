@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNPCStore } from "../store/useNPCStore";
 
 export default function EnemySidebar() {
-    const { enemies, fetchEnemies } = useNPCStore();
+    const { allEnemies, fetchEnemies } = useNPCStore();
 
     useEffect(() => {
         fetchEnemies();
@@ -12,7 +12,7 @@ export default function EnemySidebar() {
         <div className="p-4 w-80 bg-base-200 h-full text-base-content">
             <h2 className="text-xl font-bold mb-4">적 정보</h2>
 
-            {enemies.map((npc) => (
+            {allEnemies.map((npc) => (
                 <div key={npc.id} className="collapse collapse-arrow bg-white border border-gray-200 mb-2 shadow-sm">
 
                     <input type="checkbox" className="peer" />
