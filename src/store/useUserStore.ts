@@ -17,14 +17,17 @@ export interface UserState {
 export const useUserStore = create<UserState>()(
     persist(
         (set) => ({
-            userProfile: { name: '' },
+            userProfile: {
+                name: '',
+                inventory: []
+            },
             hasCharacter: false,
             isLoggedIn: false,
 
 
             setAuthSuccess: () => set({ isLoggedIn: true }),
-            setCharacterName: (name) => set({ userProfile: { name }, hasCharacter: true }),
-            logout: () => set({ isLoggedIn: false, hasCharacter: false, userProfile: { name: '' } }),
+            setCharacterName: (name) => set((state) => ({ userProfile: { ...state.userProfile, name }, hasCharacter: true })),
+            logout: () => set({ isLoggedIn: false, hasCharacter: false, userProfile: { name: '', inventory: [] } }),
         }),
         { name: 'user-storage' }
     )
