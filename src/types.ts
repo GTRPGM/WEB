@@ -16,22 +16,31 @@ export interface Message {
   color: string;
 }
 
-export interface NPC {
-  id: string;
+export interface ENEMY {
+  enemy_id: string;
   name: string;
-  hp: number;
-  maxHp: number;
+  base_difficulty: string;
   description: string;
+  type: string;
+}
+
+export interface NPC {
+  npc_id: string;
+  name: string;
+  disposition: string;
+  occupation: string;
+  description: string;
+  combat_description: string;
 }
 
 export interface InventoryItem {
-  id: 0;
+  item_id: string;
   name: string;
   type: string;
-  effect_value: 0;
+  effect_value: string;
   description: string;
-  weight: 0;
+  weight: string;
   grade: string;
-  base_price: 0;
+  base_price: string;
   creator: string;
 }

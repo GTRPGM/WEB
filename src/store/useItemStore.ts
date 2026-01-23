@@ -25,11 +25,9 @@ export const useItemStore = create<ItemState>((set) => ({
         try {
             const res = await api.post('/info/items', {}); 
             
-            const result = Array.isArray(res.data) 
-                ? res.data 
-                : (res.data.data || []);
+            const itemList = res.data?.data?.items;
                 
-            set({ allItems: result });
+            set({ allItems: Array.isArray(itemList) ? itemList : [] });
         } catch (error) {
             console.error("아이템 목록 로드 실패:", error);
             set({ allItems: [] });

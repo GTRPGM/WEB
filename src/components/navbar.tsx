@@ -93,7 +93,7 @@ export default function Navbar() {
                         <tbody>
                           {userProfile.inventory && userProfile.inventory.length > 0 ? (
                               userProfile.inventory.map((item) => (
-                                <tr key={item.id} className="hover:bg-blue-50 cursor-pointer transition-colors">
+                                <tr key={item.item_id} className="hover:bg-blue-50 cursor-pointer transition-colors">
                                     <td className="font-bold text-gray-700">{item.name}</td>
                                     <td className="text-center font-mono">x{item.type}</td>
                                     <td className="text-[10px] text-gray-500 truncate max-w-[80px]">
