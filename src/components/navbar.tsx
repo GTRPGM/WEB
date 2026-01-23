@@ -47,7 +47,7 @@ export default function Navbar() {
                   <h3 className="text-sm font-bold text-gray-800 border-b pb-2 mb-2">캐릭터 상태</h3>
                   
                   <div className="flex items-center gap-1 mb-1">
-                    <span className="text-[11px] text-gray-800 font-bold">
+                    <span className="text-gray-800 font-bold">
                       [ {userProfile?.name} ]
                     </span>
 
@@ -75,11 +75,46 @@ export default function Navbar() {
                       <progress className="progress progress-info w-full h-2" value="45" max="100"></progress>
                     </div>
 
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[11px] font-bold text-gray-400 uppercase">Inventory</span>
+                        <span className="text-[10px] text-gray-400">{userProfile.inventory?.length || 0} / 20</span>
+                      </div>
+
+                      
+                      <table className="table table-xs w-full bg-white">
+                        <thead>
+                          <tr className="bg-gray-100 text-gray-500">
+                            <th>이름</th>
+                            <th className="text-center">수량</th>
+                            <th>효과</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {userProfile.inventory && userProfile.inventory.length > 0 ? (
+                              userProfile.inventory.map((item) => (
+                                <tr key={item.id} className="hover:bg-blue-50 cursor-pointer transition-colors">
+                                    <td className="font-bold text-gray-700">{item.name}</td>
+                                    <td className="text-center font-mono">x{item.type}</td>
+                                    <td className="text-[10px] text-gray-500 truncate max-w-[80px]">
+                                      {item.effect_value}
+                                    </td>
+                                </tr>
+                              ))
+                            ) : (
+                                <tr>
+                                  <td colSpan={3} className="text-center py-4 text-gray-400 italic">
+                                    인벤토리가 비어있습니다.
+                                  </td>
+                                </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
-
           </div>
         </div>
     );
