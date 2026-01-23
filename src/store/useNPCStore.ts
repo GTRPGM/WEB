@@ -3,17 +3,17 @@ import { api } from "../apiinterceptor";
 import type { NPC } from "../types";
 
 interface NPCState {
-    enemies: NPC[];
+    allEnemies: NPC[];
     fetchEnemies: () => Promise<void>;
 }
 
 export const useNPCStore = create<NPCState>((set) => ({
-    enemies: [],
+    allEnemies: [],
     fetchEnemies: async () => {
         try {
             const res = await api.get('/info/enemies');
             if (res.data?.data) {
-                set({ enemies: res.data.data })
+                set({ allEnemies: res.data.data })
             }
         } catch (error) {
             console.error("적 정보 불러오기 실패:", error);
