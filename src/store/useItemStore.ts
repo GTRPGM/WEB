@@ -23,8 +23,12 @@ export const useItemStore = create<ItemState>((set) => ({
     allItems: [],
     fetchItems: async () => {
         try {
-            const res = await api.get('/info/items');
-            const result = Array.isArray(res.data) ? res.data : (res.data.data || []);
+            const res = await api.post('/info/items', {}); 
+            
+            const result = Array.isArray(res.data) 
+                ? res.data 
+                : (res.data.data || []);
+                
             set({ allItems: result });
         } catch (error) {
             console.error("아이템 목록 로드 실패:", error);
