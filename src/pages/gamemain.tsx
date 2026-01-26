@@ -3,78 +3,138 @@ import Navbar from '../components/navbar'
 import ChatLog from '../components/chatlog'
 import ChatInput from '../components/chatinput'
 import { useChatStore } from '../store/useChatStore'
-import { api } from "../apiinterceptor";
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import EnemySidebar from '../components/sidebar'
+import { useAuthStore } from '../store/useAuthStore'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
-  const { messages, addMessage, setGmthinking } = useChatStore();
+  const { messages, addMessage, setGmthinking, updateMessageContent } = useChatStore();
   const isInitialFetched = useRef(false);
 
-  const fetchFirstGMMessage = async () => {
+  const [attemptCount, setAttemptCount] = useState(1);
+  const [isMiniGameActive, setMiniGameActive] = useState(false);
 
-    if (isInitialFetched.current || messages.length > 0) return 0;
+  const processStream = async (response: Response, msgId: string) => {
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let accumulated = "";
+    if (!reader) return;
 
-    isInitialFetched.current = true;
-    setGmthinking(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // 수정 필요
-      const res = await api.post('/chat/generate', { prompt: "게임 시작 오프닝을 들려줘 "});
-      
-      if (res.data?.data?.content) {
-        addMessage('GM', res.data.data.content);
-      }
-    } catch (error) {
-      console.error("오프닝 로딩 실패:", error);
-      addMessage('GM', '아직 시작하지 않았습니다. (연결 실패)');
-    } finally {
-      setGmthinking(false);
+    setGmthinking(false);
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      accumulated += decoder.decode(value);
+      updateMessageContent(msgId, accumulated);
     }
   };
 
+  const handleSendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    const token = useAuthStore.getState().access_token;
+    
+    addMessage(userProfile.name, text);
+
+    await new Promise(resolve => setTimeout(resolve, 200));
+    setGmthinking(true);
+
+    let gmMsgId = "";
+    
+    try {
+      const isMiniGame = text.includes("미니게임");
+      let url = "";
+      let fetchOptions: RequestInit = {};
+      const headers: HeadersInit = {
+        'Authorization' : `Bearer ${token}`
+      };
+
+      if (isMiniGame) {
+        url = `${BASE_URL}/minigame/riddle`;
+        fetchOptions = { method: 'GET', headers };
+        setMiniGameActive(true);
+        setAttemptCount(1);
+      }
+      else if (isMiniGameActive) {
+        url = `${BASE_URL}/minigame/answer`;
+        headers['Content-Type'] = 'application/json';
+        fetchOptions = {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ 
+            user_guess: text,
+            current_attempt: attemptCount
+          })
+        };
+      }
+      else {
+        console.log("분기: 일반 채팅(POST)");
+      }
+
+    const response = await fetch(url, fetchOptions);
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+    setGmthinking(false);
+    gmMsgId = addMessage('GM','');
+
+    if (isMiniGameActive && !isMiniGame) {
+        const gameData = await response.json();
+        const result = gameData.data;
+
+        if (result.is_correct) {
+          updateMessageContent(gmMsgId, `${result.message}`);
+          setMiniGameActive(false);
+          setAttemptCount(1);
+        } else {
+          updateMessageContent(gmMsgId, `${result.message}`);
+          setAttemptCount(result.fail_count || attemptCount + 1);
+        }
+      } else {
+          await processStream(response, gmMsgId);
+        }
+      } catch (error) {
+        setGmthinking(false);
+        updateMessageContent(gmMsgId, '연결에 실패했습니다. 다시 시도해 주세요.');
+      } finally {
+        setGmthinking(false);
+      }
+    };
+
+
+  const fetchFirstGMMessage = async () => {
+if (isInitialFetched.current || messages.length > 0) return;
+
+    isInitialFetched.current = true;
+    setGmthinking(true);
+    const gmMsgId = addMessage('GM', '');
+    
+    try {
+      const token = useAuthStore.getState().access_token;
+
+      //수정 필요
+      const response = await fetch(`${BASE_URL}/chat/generate`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ prompt: "게임 시작 오프닝을 들려줘" }),
+      });
+      await processStream(response, gmMsgId);
+    } catch (e) {
+      updateMessageContent(gmMsgId, "오프닝 로딩 실패");
+    } finally {setGmthinking(false);}
+  };
 
   useEffect(() => {
     if (messages.length === 0) {
       fetchFirstGMMessage();
     }
   }, []);
-
-  const handleSendMessage = async (text: string) => {
-    if (!text.trim()) return;
-    
-    addMessage(userProfile.name, text);
-
-   /* const newMessage: Message = {
-      id: `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      sender: userProfile.name,
-      content: text,
-      time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
-      color: 'bg-gray-500'
-    }; */
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setGmthinking(true);
-    
-    /* await new Promise(resolve => setTimeout(resolve, 2000));
-    add Message('GM', '서버 대신 대답하는 임시 메세지입니다!');
-    setGmthinking(false); return; */
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const res = await api.post('/chat/generate', { prompt: text });
-
-      if (res.data?.data?.content) {addMessage('GM', res.data.data.content);}
-    } catch (error) {
-      console.error("통신 실패: ", error);
-      addMessage('GM', '다시 시도해주세요.');
-    } finally {
-      setGmthinking(false);
-    }
-  };
 
   return (
     <div className="drawer lg:drawer-open h-screen overflow-hidden">
