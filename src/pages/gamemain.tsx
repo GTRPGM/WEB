@@ -11,17 +11,24 @@ import MiniGameModal from '../components/MiniGameModal'
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
   const { messages, isGMThinking } = useChatStore();
-  const { handleSendMessage, isMiniGameActive, startMiniGame, isModalOpen, setIsModalOpen, riddleText, gameFeedback } = useGameChat();
+  const { 
+    handleSendMessage, 
+    handleAnswerSubmit, 
+    isMiniGameActive, 
+    startMiniGame, 
+    isModalOpen, 
+    setIsModalOpen, 
+    riddleText, 
+    gameFeedback 
+  } = useGameChat();
   const isInitialFetched = useRef(false);
 
   useEffect(() => {
     if (!isInitialFetched.current && messages.length === 0) {
       isInitialFetched.current = true;
-
       setTimeout(() => {
         handleSendMessage("게임 시작 오프닝을 들려줘", "System");
-      }, 0);
-      
+      }, 100);
     }
   }, [handleSendMessage, messages.length]);
 
@@ -54,11 +61,13 @@ export default function GameMain() {
         </div>
         
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           <ChatLog messages={messages} isGMThinking={isGMThinking}/>
         </div>
 
-        <ChatInput onSend={(text) => handleSendMessage(text, userProfile.name)} />
+        <div className='flex-none'>
+          <ChatInput onSend={(text) => handleSendMessage(text, userProfile.name)} />
+        </div>
       </div>
 
       <MiniGameModal
@@ -67,8 +76,8 @@ export default function GameMain() {
         riddleText={riddleText}
         gameFeedback={gameFeedback}
         onClose={() => setIsModalOpen(false)}
-        onStart={() => startMiniGame(userProfile.name)}
-        onAnswer={(ans: string) => handleSendMessage(ans, userProfile.name)}
+        onStart={() => startMiniGame()}
+        onAnswer={(ans: string) => handleAnswerSubmit(ans)}
       />
 
       <div className='drawer-side'>
