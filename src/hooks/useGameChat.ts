@@ -17,34 +17,43 @@ export function useGameChat() {
         let accumulated = "";
         if (!reader) return;
 
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            const text = decoder.decode(value);
-            accumulated += text;
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-            if(!isRiddle && msgId) { updateMessageContent(msgId, accumulated); }
+        try {
+            await delay(3000);
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                const text = decoder.decode(value);
+                accumulated += text;
 
-            if (isRiddle) {
-                setRiddleText(accumulated);
+                if(!isRiddle && msgId) { updateMessageContent(msgId, accumulated); }
+
+                if (isRiddle) {
+                    setRiddleText(accumulated);
+                }
             }
+            await delay(1500);
+        } finally {
+            setGmthinking(false);
         }
     };
 
     const handleSendMessage = async (text: string, username: string) => {
         if (!text.trim()) return;
         const token = useAuthStore.getState().access_token ?? "";
+        if (!token) return;
 
-        if (!token) {
-            return;
-        }
         const isMiniGame = text.includes("미니게임");
+        const isOpening = text.includes("오프닝");
 
-        if(username !== "System" && !isMiniGame && !isMiniGameActive) {
+        setGmthinking(true);
+        
+        if(username !== "System" && !isMiniGame && !isMiniGameActive && !isOpening) {
             addMessage(username, text);
         }
-        
-        setGmthinking(false);
+
+
         setGameFeedback("");
         let gmMsgId = "";
       
@@ -64,8 +73,6 @@ export function useGameChat() {
 
             if (!response.ok) throw new Error(`Status: ${response.status}`);
 
-            setGmthinking(false);
-
             if (isMiniGame) {
                 gmMsgId = addMessage("GM", '수수께끼 미니게임이 시작되었습니다.');
             } else if (!isMiniGameActive) {
@@ -76,7 +83,10 @@ export function useGameChat() {
                 const gameData = await response.json();
                 const result = gameData.data;
 
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
                 setGameFeedback(result.message);
+                setGmthinking(false);
 
                 if (result.is_correct) {
                     setMiniGameActive(false);
@@ -85,6 +95,7 @@ export function useGameChat() {
                 } else {
                     setAttemptCount( result.fail_count || attemptCount + 1);
                 }
+                setGmthinking(false);
             } else {
                 await processStream(response, gmMsgId, isMiniGame);
             }
@@ -92,22 +103,8 @@ export function useGameChat() {
             setGmthinking(false);
             const errorTargetId = gmMsgId || addMessage('GM','');
             updateMessageContent(errorTargetId, '연결에 실패했습니다. 다시 시도해 주세요.');
-        } finally {
-            setGmthinking(false);
         }
     };
 
-    const startMiniGame = (username: string) => {
-        setIsModalOpen(true);
-        handleSendMessage("미니게임 시작", username);
-    }
-
-    const stopMiniGame = () => {
-        setMiniGameActive(false);
-        setIsModalOpen(false);
-        setAttemptCount(1);
-        setRiddleText("");
-    };
-
-    return { handleSendMessage, isMiniGameActive, isModalOpen, setIsModalOpen, startMiniGame, stopMiniGame, riddleText, gameFeedback };
+    return { handleSendMessage, isMiniGameActive, isModalOpen, setIsModalOpen, startMiniGame: (u: string) => { setIsModalOpen(true); handleSendMessage("미니게임 시작", u); }, stopMiniGamestopMiniGame: () => { setMiniGameActive(false); setIsModalOpen(false); setRiddleText(""); }, riddleText, gameFeedback };
 }

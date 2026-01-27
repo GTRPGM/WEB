@@ -10,14 +10,18 @@ import MiniGameModal from '../components/MiniGameModal'
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
-  const { messages } = useChatStore();
+  const { messages, isGMThinking } = useChatStore();
   const { handleSendMessage, isMiniGameActive, startMiniGame, isModalOpen, setIsModalOpen, riddleText, gameFeedback } = useGameChat();
   const isInitialFetched = useRef(false);
 
   useEffect(() => {
     if (!isInitialFetched.current && messages.length === 0) {
       isInitialFetched.current = true;
-      handleSendMessage("게임 시작 오프닝을 들려줘", "System");
+
+      setTimeout(() => {
+        handleSendMessage("게임 시작 오프닝을 들려줘", "System");
+      }, 0);
+      
     }
   }, [handleSendMessage, messages.length]);
 
@@ -47,12 +51,12 @@ export default function GameMain() {
                 {isMiniGameActive ? "수수께끼 풀기" : "미니게임 시작"}
               </button>
           </div>
-
-          
         </div>
         
 
-        <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
+        <div className="flex-1 overflow-y-auto">
+          <ChatLog messages={messages} isGMThinking={isGMThinking}/>
+        </div>
 
         <ChatInput onSend={(text) => handleSendMessage(text, userProfile.name)} />
       </div>
