@@ -8,7 +8,7 @@ export function useGameChat() {
     const [attemptCount, setAttemptCount] = useState(1);
     const [isMiniGameActive, setMiniGameActive] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [riddleText, setRiddelText] = useState("");
+    const [riddleText, setRiddleText] = useState("");
     const [gameFeedback, setGameFeedback] = useState("");
 
     const processStream = async (response: Response, msgId: string, isRiddle: boolean) => {
@@ -26,7 +26,7 @@ export function useGameChat() {
             if(!isRiddle && msgId) { updateMessageContent(msgId, accumulated); }
 
             if (isRiddle) {
-                setRiddelText(accumulated);
+                setRiddleText(accumulated);
             }
         }
     };
@@ -39,9 +39,12 @@ export function useGameChat() {
             return;
         }
         const isMiniGame = text.includes("미니게임");
+
+        if(username !== "System" && !isMiniGame && !isMiniGameActive) {
+            addMessage(username, text);
+        }
         
-        if (!isMiniGame && !isMiniGameActive) { addMessage(username, text); }
-        setGmthinking(true);
+        setGmthinking(false);
         setGameFeedback("");
         let gmMsgId = "";
       
@@ -49,7 +52,7 @@ export function useGameChat() {
             let response: Response;
 
             if (isMiniGame) {
-                setRiddelText("");
+                setRiddleText("");
                 response = await gameService.getMiniGame(token);
                 setMiniGameActive(true);
                 setAttemptCount(1);
@@ -80,7 +83,7 @@ export function useGameChat() {
                     setAttemptCount(1);
                     setTimeout(() => setIsModalOpen(false), 1500);
                 } else {
-                    setAttemptCount( prev => prev + 1);
+                    setAttemptCount( result.fail_count || attemptCount + 1);
                 }
             } else {
                 await processStream(response, gmMsgId, isMiniGame);
@@ -103,7 +106,7 @@ export function useGameChat() {
         setMiniGameActive(false);
         setIsModalOpen(false);
         setAttemptCount(1);
-        setRiddelText("");
+        setRiddleText("");
     };
 
     return { handleSendMessage, isMiniGameActive, isModalOpen, setIsModalOpen, startMiniGame, stopMiniGame, riddleText, gameFeedback };
