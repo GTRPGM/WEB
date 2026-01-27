@@ -7,17 +7,27 @@ export function useGameChat() {
     const { addMessage, setGmthinking, updateMessageContent } = useChatStore();
     const [attemptCount, setAttemptCount] = useState(1);
     const [isMiniGameActive, setMiniGameActive] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [riddleText, setRiddelText] = useState("");
+    const [gameFeedback, setGameFeedback] = useState("");
 
-    const processStream = async (response: Response, msgId: string) => {
+    const processStream = async (response: Response, msgId: string, isRiddle: boolean) => {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
+        let accumulated = "";
         if (!reader) return;
 
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
             const text = decoder.decode(value);
-            updateMessageContent(msgId, text);
+            accumulated += text;
+
+            if(!isRiddle && msgId) { updateMessageContent(msgId, accumulated); }
+
+            if (isRiddle) {
+                setRiddelText(accumulated);
+            }
         }
     };
 
@@ -28,17 +38,18 @@ export function useGameChat() {
         if (!token) {
             return;
         }
+        const isMiniGame = text.includes("미니게임");
         
-        addMessage(username, text);
+        if (!isMiniGame && !isMiniGameActive) { addMessage(username, text); }
         setGmthinking(true);
-
+        setGameFeedback("");
         let gmMsgId = "";
       
         try {
-            const isMiniGame = text.includes("미니게임");
             let response: Response;
 
             if (isMiniGame) {
+                setRiddelText("");
                 response = await gameService.getMiniGame(token);
                 setMiniGameActive(true);
                 setAttemptCount(1);
@@ -51,22 +62,28 @@ export function useGameChat() {
             if (!response.ok) throw new Error(`Status: ${response.status}`);
 
             setGmthinking(false);
-            gmMsgId = addMessage('GM','');
+
+            if (isMiniGame) {
+                gmMsgId = addMessage("GM", '수수께끼 미니게임이 시작되었습니다.');
+            } else if (!isMiniGameActive) {
+                gmMsgId = addMessage('GM','');
+            }
 
             if (isMiniGameActive && !isMiniGame) {
                 const gameData = await response.json();
                 const result = gameData.data;
 
+                setGameFeedback(result.message);
+
                 if (result.is_correct) {
-                    updateMessageContent(gmMsgId, `${result.message}`);
                     setMiniGameActive(false);
                     setAttemptCount(1);
+                    setTimeout(() => setIsModalOpen(false), 1500);
                 } else {
-                    updateMessageContent(gmMsgId, `${result.message}`);
-                    setAttemptCount(result.fail_count || attemptCount + 1);
+                    setAttemptCount( prev => prev + 1);
                 }
             } else {
-                await processStream(response, gmMsgId);
+                await processStream(response, gmMsgId, isMiniGame);
             }
         } catch (error) {
             setGmthinking(false);
@@ -77,5 +94,17 @@ export function useGameChat() {
         }
     };
 
-    return { handleSendMessage, isMiniGameActive };
+    const startMiniGame = (username: string) => {
+        setIsModalOpen(true);
+        handleSendMessage("미니게임 시작", username);
+    }
+
+    const stopMiniGame = () => {
+        setMiniGameActive(false);
+        setIsModalOpen(false);
+        setAttemptCount(1);
+        setRiddelText("");
+    };
+
+    return { handleSendMessage, isMiniGameActive, isModalOpen, setIsModalOpen, startMiniGame, stopMiniGame, riddleText, gameFeedback };
 }

@@ -44,3 +44,13 @@ export interface InventoryItem {
   base_price: string;
   creator: string;
 }
+
+export interface MiniGameModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onStart: () => void;
+  onAnswer: (ans: string) => void;
+  isActive: boolean;
+  riddleText: string;
+  gameFeedback: string;
+}

@@ -19,7 +19,7 @@ export const gameService = {
     async checkAnswer(guess: string, attempt: number, token: string) {
         return fetch(`${BASE_URL}/minigame/answer`, {
             method: 'POST',
-            headers: { 'Content-Type': 'appplication/json', 'Authorization':`Bearer ${token}`},
+            headers: { 'Content-Type': 'application/json', 'Authorization':`Bearer ${token}`},
             body: JSON.stringify({ user_guess: guess, current_attempt: attempt }),
         });
     }
