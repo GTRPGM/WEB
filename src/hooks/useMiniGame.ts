@@ -4,14 +4,46 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { gameService } from "../services/miniGameService";
 import type { StreamUpdateHandler } from "./useChatStream";
+import type { RankingItem } from "../types";
 
 export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdateHandler) => Promise<void> ) {
-    const { addMessage, setGmthinking } = useChatStore();
+    const { setGmthinking } = useChatStore();
     const [attemptCount, setAttemptCount] = useState(1);
     const [isMiniGameActive, setMiniGameActive] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [riddleText, setRiddleText] = useState("");
     const [gameFeedback, setGameFeedback] = useState("");
+    const [isCorrect, setIsCorrect] = useState(false);
+    const [score, setScore] = useState(0);
+    const [solvedCount, setSolvedCount] = useState(0);
+    const [rankings, setRankings] = useState<RankingItem[]>(() => {
+        const saved = localStorage.getItem("miniGame_rankings");
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const finishGame = () => {
+        if (score > 0) {
+            const newRecord = {
+                score: score,
+                date: new Date().toLocaleDateString(),
+            };
+
+            const savedRankings = localStorage.getItem("miniGame_rankings");
+            const currentRankings = savedRankings ? JSON.parse(savedRankings) : [];
+
+            const updatedRankings = [...currentRankings, newRecord]
+                .sort((a,b) => b.score - a.score)
+                .slice(0,10);
+
+            localStorage.setItem("miniGame_rankings",JSON.stringify(updatedRankings));
+            setRankings(updatedRankings);
+        }
+
+        setScore(0);
+        setSolvedCount(0);
+        setIsModalOpen(false);
+        setMiniGameActive(false);
+    }
 
     const startMiniGame = async () => {
         const token = useAuthStore.getState().access_token ?? "";
@@ -23,12 +55,16 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
         try {
             const response = await gameService.getMiniGame(token);
             if (!response.ok) throw new Error();
+
             setMiniGameActive(true);
             setAttemptCount(1);
+            setIsCorrect(false);
+
             await processStream(response, (text: string) => { setRiddleText(text) });
         } catch (error) {
-            setGmthinking(false);
             setGameFeedback("미니게임을 불러오지 못했습니다.");
+        } finally {
+            setGmthinking(false);
         }
     };
 
@@ -43,15 +79,21 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
             if (!response.ok) throw new Error();
 
             const gameData = await response.json();
-            const result = gameData.data;
+            console.log("서버 응답 데이터:", gameData);
+            const result = gameData.data || gameData;
             setGameFeedback(result.message);
 
-            if (result.is_correct) {
-                setMiniGameActive(false);
+            if (result && result.result === 'correct') {
+                setScore(prev => prev + 10);
+                setSolvedCount(prev => prev + 1)
+
                 setAttemptCount(1);
-                addMessage("GM", `정답입니다! : ${result.message}`);
-                setTimeout(() => setIsModalOpen(false), 2000);
+                setIsCorrect(true);
+
+                setGameFeedback(result.message);
             } else {
+                setIsCorrect(false);
+                setGameFeedback(result.message);
                 setAttemptCount(prev => result.fail_count || prev + 1);
             }
         } catch (error) {
@@ -61,16 +103,25 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
         }
     };
 
+    const handleNextGame = () => {
+        setIsCorrect(false);
+        setGameFeedback("");
+        setRiddleText("");
+        startMiniGame();
+    };
+
     const stopMiniGame = () => {
         setMiniGameActive(false);
         setIsModalOpen(false);
         setRiddleText("");
         setGameFeedback("");
         setGmthinking(false);
+        setIsCorrect(false);
     };
 
     return { 
         isMiniGameActive, isModalOpen, setIsModalOpen, 
-        riddleText, gameFeedback, startMiniGame, handleAnswerSubmit, stopMiniGame, setRiddleText
+        riddleText, gameFeedback, startMiniGame, handleAnswerSubmit, stopMiniGame, setRiddleText,
+        score, solvedCount, isCorrect, handleNextGame, rankings, finishGame
     };
 }

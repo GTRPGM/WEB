@@ -15,10 +15,17 @@ export default function GameMain() {
     handleSendMessage, 
     handleAnswerSubmit, 
     isMiniGameActive, 
-    startMiniGame, 
-    isModalOpen, 
+    startMiniGame,
+    stopMiniGame,
+    handleNextGame,
+    isModalOpen,
+    isCorrect,
+    score,
+    finishGame,
+    rankings,
+    solvedCount,
     setIsModalOpen, 
-    riddleText, 
+    riddleText,
     gameFeedback 
   } = useGameChat();
   const isInitialFetched = useRef(false);
@@ -72,12 +79,18 @@ export default function GameMain() {
 
       <MiniGameModal
         isOpen={isModalOpen}
+        onClose={stopMiniGame}
+        onStart={startMiniGame}
+        onAnswer={handleAnswerSubmit}
+        onNext={handleNextGame}
+        onFinish={finishGame}
+        rankings={rankings}
         isActive={isMiniGameActive}
+        isCorrect={isCorrect}
         riddleText={riddleText}
         gameFeedback={gameFeedback}
-        onClose={() => setIsModalOpen(false)}
-        onStart={() => startMiniGame()}
-        onAnswer={(ans: string) => handleAnswerSubmit(ans)}
+        score={score}
+        solvedCount={solvedCount}
       />
 
       <div className='drawer-side'>

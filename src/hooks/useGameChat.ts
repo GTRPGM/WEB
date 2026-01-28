@@ -1,4 +1,4 @@
-// hooks/useGameChat.ts
+import { useCallback } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { gameService } from "../services/miniGameService";
@@ -10,7 +10,7 @@ export function useGameChat() {
     const { processStream } = useChatStream();
     const miniGame = useMiniGame(processStream);
 
-    const handleSendMessage = async (text: string, username: string) => {
+    const handleSendMessage = useCallback(async (text: string, username: string) => {
         if (!text.trim()) return;
         const token = useAuthStore.getState().access_token ?? "";
         
@@ -34,7 +34,7 @@ export function useGameChat() {
             setGmthinking(false);
             addMessage('GM', '연결에 실패했습니다.');
         }
-    };
+    }, [addMessage, updateMessageContent,setGmthinking, processStream]);
 
     return {
         handleSendMessage,
