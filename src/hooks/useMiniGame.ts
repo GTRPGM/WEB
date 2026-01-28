@@ -41,8 +41,10 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
 
         setScore(0);
         setSolvedCount(0);
-        setIsModalOpen(false);
         setMiniGameActive(false);
+        setIsCorrect(false);
+        setRiddleText("");
+        setGameFeedback("");
     }
 
     const startMiniGame = async () => {

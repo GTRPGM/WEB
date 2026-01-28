@@ -105,7 +105,7 @@ export default function MiniGameModal({
               <div className="divider opacity-20 my-1"></div>
                 <button 
                   className="btn btn-ghost btn-xs w-full text-slate-500 hover:text-error transition-colors"
-                  onClick={() => { if(confirm("점수를 기록하고 종료하시겠습니까?")) onFinish(); }}
+                  onClick={() => { if(confirm("점수를 기록하고 종료하시겠습니까?")) onFinish(); setShowRanking(true); }}
                 >
                   점수 기록하고 그만두기
                 </button>
