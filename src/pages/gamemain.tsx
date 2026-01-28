@@ -16,7 +16,7 @@ export default function GameMain() {
     handleAnswerSubmit, 
     isMiniGameActive, 
     startMiniGame,
-    stopMiniGame,
+    closeOnlyModal,
     handleNextGame,
     isModalOpen,
     isCorrect,
@@ -79,7 +79,7 @@ export default function GameMain() {
 
       <MiniGameModal
         isOpen={isModalOpen}
-        onClose={stopMiniGame}
+        onClose={closeOnlyModal}
         onStart={startMiniGame}
         onAnswer={handleAnswerSubmit}
         onNext={handleNextGame}

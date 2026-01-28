@@ -19,6 +19,13 @@ export default function MiniGameModal({
   const [inputValue, setInputValue] = useState("");
   const [showRanking, setShowRanking] = useState(false);
 
+  const handleFinishClick = () => {
+    if (confirm("현재 점수를 저장하고 종료하시겠습니까?")) {
+      onFinish();
+      setShowRanking(true);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -82,7 +89,7 @@ export default function MiniGameModal({
                 >다음 문제 불러오기</button>
                 <button 
                     className="btn btn-ghost btn-sm w-full text-error" 
-                    onClick={() => { if(confirm("현재 점수를 저장하고 종료할까요?")) onFinish(); }}
+                    onClick={handleFinishClick}
                   >여기서 그만하고 점수 저장하기</button>
               </div>
             ) : (

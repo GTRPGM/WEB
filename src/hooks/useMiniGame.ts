@@ -1,5 +1,4 @@
-// hooks/useMiniGame.ts
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { gameService } from "../services/miniGameService";
@@ -14,12 +13,21 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
     const [riddleText, setRiddleText] = useState("");
     const [gameFeedback, setGameFeedback] = useState("");
     const [isCorrect, setIsCorrect] = useState(false);
-    const [score, setScore] = useState(0);
-    const [solvedCount, setSolvedCount] = useState(0);
+    const [score, setScore] = useState<number>(() => {
+        const saved = sessionStorage.getItem("miniGame_score");
+        return saved ? Number(saved) : 0;
+    });
+    const [solvedCount, setSolvedCount] = useState<number>(() => {
+        const saved = sessionStorage.getItem("miniGame_solvedCount");
+        return saved ? Number(saved) : 0;
+    });
     const [rankings, setRankings] = useState<RankingItem[]>(() => {
-        const saved = localStorage.getItem("miniGame_rankings");
+        const saved = sessionStorage.getItem("miniGame_rankings");
         return saved ? JSON.parse(saved) : [];
     });
+    const closeOnlyModal = () => {
+        setIsModalOpen(false);
+    };
 
     const finishGame = () => {
         if (score > 0) {
@@ -28,14 +36,14 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
                 date: new Date().toLocaleDateString(),
             };
 
-            const savedRankings = localStorage.getItem("miniGame_rankings");
+            const savedRankings = sessionStorage.getItem("miniGame_rankings");
             const currentRankings = savedRankings ? JSON.parse(savedRankings) : [];
 
             const updatedRankings = [...currentRankings, newRecord]
                 .sort((a,b) => b.score - a.score)
                 .slice(0,10);
 
-            localStorage.setItem("miniGame_rankings",JSON.stringify(updatedRankings));
+            sessionStorage.setItem("miniGame_rankings",JSON.stringify(updatedRankings));
             setRankings(updatedRankings);
         }
 
@@ -119,11 +127,17 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
         setGameFeedback("");
         setGmthinking(false);
         setIsCorrect(false);
+        setScore(0);
     };
+
+    useEffect(() => {
+        sessionStorage.setItem("miniGame_score", score.toString());
+        sessionStorage.setItem("miniGame_solvedCount", solvedCount.toString());
+    }, [score, solvedCount]);
 
     return { 
         isMiniGameActive, isModalOpen, setIsModalOpen, 
         riddleText, gameFeedback, startMiniGame, handleAnswerSubmit, stopMiniGame, setRiddleText,
-        score, solvedCount, isCorrect, handleNextGame, rankings, finishGame
+        score, solvedCount, isCorrect, handleNextGame, rankings, finishGame, closeOnlyModal
     };
 }
