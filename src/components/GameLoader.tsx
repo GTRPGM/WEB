@@ -17,10 +17,8 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
     const [apiData, setApiData] = useState<LoadingData | null>(null);
 
     useEffect(() => {
-        // 1. 백엔드 데이터 가져오기 (인터셉터 사용)
         const fetchLoadingData = async () => {
             try {
-                // 암호화 없이 일반적인 GET 요청
                 const response = await api.get("/info/loading-messages");
                 setApiData(response.data);
                 
@@ -28,12 +26,10 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
                 if (response.data.tips?.length > 0) setCurrentTip(response.data.tips[0]);
             } catch (error) {
                 console.error("데이터 로드 실패, 기본 문구를 사용합니다.");
-                // 실패 시 기본 문구 유지
             }
         };
         fetchLoadingData();
 
-        // 2. 로딩 바 진행 (15초 기준)
         const duration = 15000; 
         const intervalTime = 100;
         const increment = 100 / (duration / intervalTime);
@@ -42,14 +38,34 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(progressTimer);
-                    setTimeout(onLoadingComplete, 800); // 100% 도달 후 부드럽게 전환
+                    setTimeout(onLoadingComplete, 800);
+                    handleFinishWithFate();
                     return 100;
                 }
                 return prev + increment;
             });
         }, intervalTime);
 
-        // 3. 문구 및 팁 순환 변경
+        const handleFinishWithFate = () => {
+                if (window.bgm) {
+                const audio = window.bgm;
+                const fadeOut = setInterval(() => {
+                    if (audio.volume > 0.05) {
+                        audio.volume -= 0.05;
+                    } else {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        clearInterval(fadeOut);
+                        window.bgm = undefined;
+                        onLoadingComplete();
+                    }
+                }, 50);
+            } else {
+                onLoadingComplete();
+            }
+
+        }
+
         const textTimer = setInterval(() => {
             if (apiData) {
                 const randomPhrase = apiData.phrases[Math.floor(Math.random() * apiData.phrases.length)];
