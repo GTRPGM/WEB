@@ -21,11 +21,10 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
             try {
                 const response = await api.get("/info/loading-messages");
                 setApiData(response.data);
-                
                 if (response.data.phrases?.length > 0) setLoadingText(response.data.phrases[0]);
                 if (response.data.tips?.length > 0) setCurrentTip(response.data.tips[0]);
             } catch (error) {
-                console.error("데이터 로드 실패, 기본 문구를 사용합니다.");
+                console.error("데이터 로드 실패");
             }
         };
         fetchLoadingData();
@@ -38,8 +37,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(progressTimer);
-                    setTimeout(onLoadingComplete, 800);
-                    handleFinishWithFate();
+                    setTimeout(handleFinishWithFate, 500);
                     return 100;
                 }
                 return prev + increment;
@@ -47,7 +45,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
         }, intervalTime);
 
         const handleFinishWithFate = () => {
-                if (window.bgm) {
+            if (window.bgm) {
                 const audio = window.bgm;
                 const fadeOut = setInterval(() => {
                     if (audio.volume > 0.05) {
@@ -63,8 +61,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
             } else {
                 onLoadingComplete();
             }
-
-        }
+        };
 
         const textTimer = setInterval(() => {
             if (apiData) {
@@ -81,78 +78,56 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
         };
     }, [onLoadingComplete, apiData]);
 
-    return (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white">
-            <div className="absolute flex items-center justify-center inset-0">
-                <div className="pulse" style={{ animationDelay: '0s' }}></div>
-                <div className="pulse" style={{ animationDelay: '2s' }}></div>
+return (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white text-gray-800 overflow-hidden">
+            
+            {/* 📡 배경 애니메이션: 펄스 (진한 파란색으로 변경) */}
+            <div className="absolute flex items-center justify-center inset-0 pointer-events-none">
+                <div className="pulse border-blue-400" style={{ animationDelay: '0s' }}></div>
+                <div className="pulse border-blue-300" style={{ animationDelay: '2s' }}></div>
             </div>
 
-            <div className="absolute inset-0 pointer-events-none">
-                {[...Array(15)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="bubble"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 5}s`,
-                            animationDuration: `${3 + Math.random() * 4}s`,
-                            width: `${10 + Math.random() * 20}px`,
-                            height: `${10 + Math.random() * 20}px`,
-                        }}
-                    />
-                ))}
-            </div>
 
-            <div className="w-full max-w-md px-10">
-                <div className="mb-100 text-center animate-pulse">
-                    <h2 className="text-4xl font-bold text-primary tracking-widest uppercase">TRPG ONLINE</h2>
-                    <p className="text-slate-400 mt-2 text-sm uppercase tracking-widest">Mystery Adventure</p>
+            <div className="relative z-10 w-full max-w-md px-10 text-center">
+                <div className="mb-16">
+                    <h2 className="text-4xl font-black text-primary tracking-tighter uppercase drop-shadow-sm">
+                        TRPG ONLINE
+                    </h2>
+                    <p className="text-gray-500 mt-2 text-xs font-bold uppercase tracking-widest">
+                        Please Wait a Moment
+                    </p>
                 </div>
 
-                <div className="flex justify-between mb-2 px-1">
-                    <span className="text-xs font-mono text-primary">{loadingText}</span>
-                    <span className="text-xs font-mono text-primary">{Math.round(progress)}%</span>
+                <div className="flex justify-between mb-3 px-1">
+                    <span className="text-xs font-bold text-gray-600">{loadingText}</span>
+                    <span className="text-xs font-bold text-primary">{Math.round(progress)}%</span>
                 </div>
 
-                <div className="w-full h-4 bg-slate-800 rounded-full border border-slate-700 p-[2px] shadow-inner">
+                <div className="w-full h-3 bg-gray-200 rounded-full border border-gray-300 p-[1px] shadow-inner">
                     <div
-                        className="h-full bg-gradient-to-r from-blue-600 to-primary rounded-full transition-all duration-150 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                        style={{ width: `${progress}% `}}
+                        className="h-full bg-primary rounded-full transition-all duration-300 ease-out shadow-md"
+                        style={{ width: `${progress}%` }}
                     ></div>
                 </div>
 
-                <p className="mt-8 text-[10px] text-center text-slate-500 uppercase tracking-tighter italic">
-                    "{ currentTip }"
-                </p>
+                <div className="mt-10 h-4">
+                    <p className="text-[11px] text-gray-500 font-bold italic">
+                        " { currentTip } "
+                    </p>
+                </div>
             </div>
 
             <style>{`
-                .bubble {
-                    position: absolute;
-                    bottom: -50px;
-                    background: rgba(59, 130, 246, 0.2);
-                    border-radius: 50%;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    animation: rise infinite ease-in;
-                }
-
-                @keyframes rise {
-                    0% { transform: translateY(0) scale(1); opacity: 0; }
-                    20% { opacity: 0.5; }
-                    100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
-                }
-
                 .pulse {
-                position: absolute;
-                border: 2px solid rgba(59, 130, 246, 0.4);
-                border-radius: 50%;
-                animation: ripple 4s infinite ease-out;
+                    position: absolute;
+                    border-style: solid;
+                    border-width: 3px; /* 선을 더 두껍게 */
+                    border-radius: 50%;
+                    animation: ripple 5s infinite ease-out;
                 }
-
                 @keyframes ripple {
-                0% { width: 0; height: 0; opacity: 1; }
-                100% { width: 500px; height: 500px; opacity: 0; }
+                    0% { width: 0; height: 0; opacity: 1; }
+                    100% { width: 1200px; height: 1200px; opacity: 0; }
                 }
             `}</style>
         </div>
