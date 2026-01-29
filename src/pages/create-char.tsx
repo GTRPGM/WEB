@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 
-export default function CreateChar() {
+interface CreateCharProps {
+        onStartGame?: () => void;
+    }
+
+export default function CreateChar({onStartGame}: CreateCharProps) {
     const [inputName, setInputName] = useState('');
     const navigate = useNavigate();
     const setCharacterName = useUserStore((state) => state.setCharacterName);
@@ -10,6 +14,11 @@ export default function CreateChar() {
     const handleJoinWorld = () => {
         if (inputName.trim()) {
             setCharacterName(inputName);
+
+            if (onStartGame) {
+                onStartGame();
+            }
+
             navigate('/gamemain');
         }
     };
@@ -17,6 +26,8 @@ export default function CreateChar() {
     const handleBackToLogin = () => {
         navigate('/login');
     };
+
+    
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
