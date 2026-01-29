@@ -11,7 +11,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
     const phrases = [
         "월드 데이터를 구축하는 중...",
         "NPC들과 대화 내용을 동기화 중...",
-        "심해의 수수께끼를 준비 중...",
+        "수수께끼를 준비 중...",
         "GM이 당신을 기다리고 있습니다...",
     ];
 
@@ -43,6 +43,27 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white">
+            <div className="absolute flex items-center justify-center inset-0">
+                <div className="pulse" style={{ animationDelay: '0s' }}></div>
+                <div className="pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+
+            <div className="absolute inset-0 pointer-events-none">
+                {[...Array(15)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="bubble"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${3 + Math.random() * 4}s`,
+                            width: `${10 + Math.random() * 20}px`,
+                            height: `${10 + Math.random() * 20}px`,
+                        }}
+                    />
+                ))}
+            </div>
+
             <div className="w-full max-w-md px-10">
                 <div className="mb-100 text-center animate-pulse">
                     <h2 className="text-4xl font-bold text-primary tracking-widest uppercase">TRPG ONLINE</h2>
@@ -65,6 +86,35 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
                     Tip: 수수께끼를 많이 풀수록 명예의 전당 점수가 올라갑니다.
                 </p>
             </div>
+
+            <style>{`
+                .bubble {
+                    position: absolute;
+                    bottom: -50px;
+                    background: rgba(59, 130, 246, 0.2);
+                    border-radius: 50%;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    animation: rise infinite ease-in;
+                }
+
+                @keyframes rise {
+                    0% { transform: translateY(0) scale(1); opacity: 0; }
+                    20% { opacity: 0.5; }
+                    100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+                }
+
+                .pulse {
+                position: absolute;
+                border: 2px solid rgba(59, 130, 246, 0.4);
+                border-radius: 50%;
+                animation: ripple 4s infinite ease-out;
+                }
+
+                @keyframes ripple {
+                0% { width: 0; height: 0; opacity: 1; }
+                100% { width: 500px; height: 500px; opacity: 0; }
+                }
+            `}</style>
         </div>
     );
 }
