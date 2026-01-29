@@ -1,45 +1,85 @@
 import { useState, useEffect } from "react";
+import api from "../apiinterceptor";
 
 interface GameLoaderProps {
     onLoadingComplete: () => void;
 }
 
+interface LoadingData {
+    phrases: string[];
+    tips: string[];
+}
+
 export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
     const [progress, setProgress] = useState(0);
-    const [loadingText, setLoadingText] = useState("데이터를 불러오는 중...");
-
-    const phrases = [
-        "월드 데이터를 구축하는 중...",
-        "NPC들과 대화 내용을 동기화 중...",
-        "수수께끼를 준비 중...",
-        "GM이 당신을 기다리고 있습니다...",
-    ];
+    const [loadingText, setLoadingText] = useState("통신 채널 확보 중...");
+    const [currentTip, setCurrentTip] = useState("수수께끼를 풀어보세요.");
+    const [apiData, setApiData] = useState<LoadingData | null>(null);
 
     useEffect(() => {
-        const duration = 15000;
+        const fetchLoadingData = async () => {
+            try {
+                const response = await api.get("/info/loading-messages");
+                setApiData(response.data);
+                
+                if (response.data.phrases?.length > 0) setLoadingText(response.data.phrases[0]);
+                if (response.data.tips?.length > 0) setCurrentTip(response.data.tips[0]);
+            } catch (error) {
+                console.error("데이터 로드 실패, 기본 문구를 사용합니다.");
+            }
+        };
+        fetchLoadingData();
+
+        const duration = 15000; 
         const intervalTime = 100;
         const increment = 100 / (duration / intervalTime);
 
-        const timer = setInterval(() => {
+        const progressTimer = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) {
-                    clearInterval(timer);
-                    setTimeout(onLoadingComplete, 500);
+                    clearInterval(progressTimer);
+                    setTimeout(onLoadingComplete, 800);
+                    handleFinishWithFate();
                     return 100;
                 }
                 return prev + increment;
             });
         }, intervalTime);
 
+        const handleFinishWithFate = () => {
+                if (window.bgm) {
+                const audio = window.bgm;
+                const fadeOut = setInterval(() => {
+                    if (audio.volume > 0.05) {
+                        audio.volume -= 0.05;
+                    } else {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        clearInterval(fadeOut);
+                        window.bgm = undefined;
+                        onLoadingComplete();
+                    }
+                }, 50);
+            } else {
+                onLoadingComplete();
+            }
+
+        }
+
         const textTimer = setInterval(() => {
-            setLoadingText(phrases[Math.floor(Math.random() * phrases.length)]);
-        }, 3000);
+            if (apiData) {
+                const randomPhrase = apiData.phrases[Math.floor(Math.random() * apiData.phrases.length)];
+                const randomTip = apiData.tips[Math.floor(Math.random() * apiData.tips.length)];
+                setLoadingText(randomPhrase);
+                setCurrentTip(randomTip);
+            }
+        }, 3500);
 
         return () => {
-            clearInterval(timer);
+            clearInterval(progressTimer);
             clearInterval(textTimer);
         };
-    }, [onLoadingComplete]);
+    }, [onLoadingComplete, apiData]);
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white">
@@ -83,7 +123,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
                 </div>
 
                 <p className="mt-8 text-[10px] text-center text-slate-500 uppercase tracking-tighter italic">
-                    Tip: 수수께끼를 많이 풀수록 명예의 전당 점수가 올라갑니다.
+                    "{ currentTip }"
                 </p>
             </div>
 

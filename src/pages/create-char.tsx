@@ -2,6 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 
+declare global {
+    interface Window {
+        bgm?: HTMLAudioElement;
+    }
+}
+
 interface CreateCharProps {
         onStartGame?: () => void;
     }
@@ -13,8 +19,13 @@ export default function CreateChar({onStartGame}: CreateCharProps) {
 
     const handleJoinWorld = () => {
         if (inputName.trim()) {
-            setCharacterName(inputName);
+            const audio = new Audio("./assets/sounds/cinematic_tension_soundridemusic.mp3");
+            audio.loop = true;
+            audio.play().catch(e => console.log("재생 실패:", e));
+            
+            window.bgm = audio;
 
+            setCharacterName(inputName);
             if (onStartGame) {
                 onStartGame();
             }
