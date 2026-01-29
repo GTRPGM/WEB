@@ -44,3 +44,24 @@ export interface InventoryItem {
   base_price: string;
   creator: string;
 }
+
+export interface RankingItem {
+  score: number;
+  date: string;
+}
+
+export interface MiniGameModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onStart: () => void;
+  onAnswer: (ans: string) => void;
+  onNext: () => void;
+  onFinish: () => void;
+  isActive: boolean;
+  isCorrect: boolean;
+  riddleText: string;
+  gameFeedback: string;
+  score: number;
+  solvedCount: number;
+  rankings: RankingItem[];
+}

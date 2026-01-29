@@ -3,78 +3,41 @@ import Navbar from '../components/navbar'
 import ChatLog from '../components/chatlog'
 import ChatInput from '../components/chatinput'
 import { useChatStore } from '../store/useChatStore'
-import { api } from "../apiinterceptor";
 import { useEffect, useRef } from 'react'
 import EnemySidebar from '../components/sidebar'
+import { useGameChat } from '../hooks/useGameChat'
+import MiniGameModal from '../components/MiniGameModal'
 
 export default function GameMain() {
   const userProfile = useUserStore((state) => state.userProfile);
-  const { messages, addMessage, setGmthinking } = useChatStore();
+  const { messages, isGMThinking } = useChatStore();
+  const { 
+    handleSendMessage, 
+    handleAnswerSubmit, 
+    isMiniGameActive, 
+    startMiniGame,
+    closeOnlyModal,
+    handleNextGame,
+    isModalOpen,
+    isCorrect,
+    score,
+    finishGame,
+    rankings,
+    solvedCount,
+    setIsModalOpen, 
+    riddleText,
+    gameFeedback 
+  } = useGameChat();
   const isInitialFetched = useRef(false);
 
-  const fetchFirstGMMessage = async () => {
-
-    if (isInitialFetched.current || messages.length > 0) return 0;
-
-    isInitialFetched.current = true;
-    setGmthinking(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // 수정 필요
-      const res = await api.post('/chat/generate', { prompt: "게임 시작 오프닝을 들려줘 "});
-      
-      if (res.data?.data?.content) {
-        addMessage('GM', res.data.data.content);
-      }
-    } catch (error) {
-      console.error("오프닝 로딩 실패:", error);
-      addMessage('GM', '아직 시작하지 않았습니다. (연결 실패)');
-    } finally {
-      setGmthinking(false);
-    }
-  };
-
-
   useEffect(() => {
-    if (messages.length === 0) {
-      fetchFirstGMMessage();
+    if (!isInitialFetched.current && messages.length === 0) {
+      isInitialFetched.current = true;
+      setTimeout(() => {
+        handleSendMessage("게임 시작 오프닝을 들려줘", "System");
+      }, 100);
     }
-  }, []);
-
-  const handleSendMessage = async (text: string) => {
-    if (!text.trim()) return;
-    
-    addMessage(userProfile.name, text);
-
-   /* const newMessage: Message = {
-      id: `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      sender: userProfile.name,
-      content: text,
-      time: new Date().toLocaleTimeString([], {hour:'2-digit', minute: '2-digit'}),
-      color: 'bg-gray-500'
-    }; */
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setGmthinking(true);
-    
-    /* await new Promise(resolve => setTimeout(resolve, 2000));
-    add Message('GM', '서버 대신 대답하는 임시 메세지입니다!');
-    setGmthinking(false); return; */
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const res = await api.post('/chat/generate', { prompt: text });
-
-      if (res.data?.data?.content) {addMessage('GM', res.data.data.content);}
-    } catch (error) {
-      console.error("통신 실패: ", error);
-      addMessage('GM', '다시 시도해주세요.');
-    } finally {
-      setGmthinking(false);
-    }
-  };
+  }, [handleSendMessage, messages.length]);
 
   return (
     <div className="drawer lg:drawer-open h-screen overflow-hidden">
@@ -82,12 +45,53 @@ export default function GameMain() {
     
       <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
 
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar /></div>
-    
-        <div className="flex-1 overflow-y-auto"><ChatLog messages={messages} /></div>
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md"><Navbar />
+          <div className="flex items-center justify-between px-6 py-2 bg-slate-50">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isMiniGameActive ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {isMiniGameActive ? "Mini-Game Active" : "Mini-Game Ready"}
+                </span>
+              </div>
 
-        <ChatInput onSend={handleSendMessage} />
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className={`btn btn-xs sm:btn-sm px-4 rounded-full transition-all ${
+                  isMiniGameActive 
+                  ? "btn-primary shadow-lg shadow-primary/30"
+                  : "btn-outline btn-ghost border-slate-300"
+                }`}
+              >
+                {isMiniGameActive ? "수수께끼 풀기" : "미니게임 시작"}
+              </button>
+          </div>
+        </div>
+        
+
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <ChatLog messages={messages} isGMThinking={isGMThinking}/>
+        </div>
+
+        <div className='flex-none'>
+          <ChatInput onSend={(text) => handleSendMessage(text, userProfile.name)} />
+        </div>
       </div>
+
+      <MiniGameModal
+        isOpen={isModalOpen}
+        onClose={closeOnlyModal}
+        onStart={startMiniGame}
+        onAnswer={handleAnswerSubmit}
+        onNext={handleNextGame}
+        onFinish={finishGame}
+        rankings={rankings}
+        isActive={isMiniGameActive}
+        isCorrect={isCorrect}
+        riddleText={riddleText}
+        gameFeedback={gameFeedback}
+        score={score}
+        solvedCount={solvedCount}
+      />
 
       <div className='drawer-side'>
         <label htmlFor='my-drawer' className='drawer-overlay'></label>
