@@ -14,7 +14,7 @@ export default function GameMain() {
   const { messages, isGMThinking } = useChatStore();
   const { 
     handleSendMessage, 
-    handleAnswerSubmit, 
+    handleAnswerSubmit,
     isMiniGameActive, 
     startMiniGame,
     closeOnlyModal,
@@ -52,7 +52,6 @@ export default function GameMain() {
       <div className="drawer-content flex flex-col min-h-screen bg-white text-gray-800">
         <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md">
           <Navbar />
-          {/* 버튼이 위치하는 원래의 디자인 영역 */}
           <div className="flex items-center justify-between px-6 py-2 bg-slate-50 border-b border-gray-100">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${isAnyGameActive ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></div>
@@ -99,7 +98,6 @@ export default function GameMain() {
         <EnemySidebar />
       </div>
 
-      {/* 중요: 모달들을 최하단에 배치하여 어떤 부모 요소의 영향도 받지 않게 함 */}
       <MiniGameModal
         isOpen={isModalOpen}
         onClose={closeOnlyModal}
