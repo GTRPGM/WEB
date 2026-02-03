@@ -30,7 +30,7 @@ api.interceptors.response.use(
                 const { refresh_token } = useAuthStore.getState();
 
                 const res = await api.post('/auth/refresh', { refresh_token });
-                const { access_token, newRefreshToken } = res.data;
+                const { access_token, refresh_token: newRefreshToken } = res.data;
 
                 useAuthStore.getState().setTokens(access_token, newRefreshToken);
                 originalRequest.headers.Authorization = `Bearer ${access_token}`;

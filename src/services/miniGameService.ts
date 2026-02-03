@@ -20,7 +20,17 @@ export const gameService = {
         return fetch(`${BASE_URL}/minigame/answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization':`Bearer ${token}`},
-            body: JSON.stringify({ user_guess: guess, current_attempt: attempt, flag: flag }),
+            body: JSON.stringify({ user_guess: guess, current_attempt: Number(attempt), flag: flag }),
+        });
+    },
+
+    async getRandomQuiz(token: string) {
+        return fetch(`${BASE_URL}/minigame/quiz`, {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
         });
     }
 };
