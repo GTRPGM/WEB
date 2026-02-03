@@ -47,6 +47,7 @@ export interface InventoryItem {
 
 export interface RankingItem {
   score: number;
+  name: string;
   date: string;
 }
 

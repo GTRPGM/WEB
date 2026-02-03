@@ -137,7 +137,7 @@ export default function MiniGameModal({
                     rankings.map((rk: any, index: number) => (
                       <tr key={index} className={index === 0 ? "text-yellow-400 font-bold" : ""}>
                         <td>{index + 1}위 {index === 0 }</td>
-                        <td className="text-xs">{rk.date}</td>
+                        <td className="text-xs">{rk.name}</td>
                         <td className="text-right font-mono">{rk.score}</td>
                       </tr>
                     ))

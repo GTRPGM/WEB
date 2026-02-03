@@ -16,11 +16,11 @@ export const gameService = {
         });
     },
 
-    async checkAnswer(guess: string, attempt: number, token: string) {
+    async checkAnswer(guess: string, attempt: number, token: string, flag: string) {
         return fetch(`${BASE_URL}/minigame/answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization':`Bearer ${token}`},
-            body: JSON.stringify({ user_guess: guess, current_attempt: attempt }),
+            body: JSON.stringify({ user_guess: guess, current_attempt: attempt, flag: flag }),
         });
     }
 };
