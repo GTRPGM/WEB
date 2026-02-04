@@ -65,7 +65,7 @@ jobs:
             echo "Starting new container..."
             docker run -d \
               --name web \
-              -p ${{ secrets.WEB_PORT }}:${{ secrets.WEB_PORT }} \
+              -p 0.0.0.0:${{ secrets.WEB_PORT }}:${{ secrets.WEB_PORT }} \
               --restart always \
               web:latest
             
