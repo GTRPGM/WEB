@@ -79,7 +79,7 @@ export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
     }, [onLoadingComplete, apiData]);
 
 return (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white text-gray-800 overflow-hidden">
+        <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white text-gray-800 overflow-hidden">
             
             {/* 📡 배경 애니메이션: 펄스 (진한 파란색으로 변경) */}
             <div className="absolute flex items-center justify-center inset-0 pointer-events-none">

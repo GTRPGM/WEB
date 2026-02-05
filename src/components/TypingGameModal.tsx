@@ -1,14 +1,14 @@
-import { useEffect, memo } from "react";
+import { useEffect, memo, useCallback } from "react";
 import { useTypingGame } from "../hooks/useTypingGame";
+import { typingService } from "../services/typingService";
 
-// 1. 이 인터페이스에 onStatusChange를 반드시 추가해야 합니다!
 interface TypingGameModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onStatusChange: (open: boolean) => void; // 이 줄이 빠져있을 확률이 높습니다.
+    onStatusChange: (open: boolean) => void;
 }
 
-// 2. 인자(Props) 부분에서도 onStatusChange를 구조분해 할당으로 받아옵니다.
+
 const TypingGameModal = memo(({ isOpen, onClose, onStatusChange }: TypingGameModalProps) => {
     const { 
         targetText, 
@@ -20,12 +20,19 @@ const TypingGameModal = memo(({ isOpen, onClose, onStatusChange }: TypingGameMod
         startNewGame 
     } = useTypingGame();
 
-    // 모달이 열릴 때 초기화 및 부모 상태 업데이트
+    const handleSaveAndClose = useCallback(() => {
+        if (isFinished) {
+            typingService.saveTypingResult({ correctCount, avgWpm: 0 });
+        }
+        onClose();
+    }, [isFinished, correctCount, onClose]);
+
+
     useEffect(() => {
         if (isOpen) {
             startNewGame();
+            onStatusChange(isOpen);
         }
-        // 모달의 열림/닫힘 상태를 부모(GameMain)의 Active 전광판에 반영
         onStatusChange(isOpen); 
     }, [isOpen, startNewGame, onStatusChange]);
 
@@ -90,7 +97,7 @@ const TypingGameModal = memo(({ isOpen, onClose, onStatusChange }: TypingGameMod
                             <p className="text-6xl font-black text-primary">{correctCount} <span className="text-2xl">문장 성공</span></p>
                         </div>
                         <div className="flex gap-4">
-                            <button className="btn btn-primary flex-1 text-white font-bold h-14" onClick={onClose}>기록 저장 및 닫기</button>
+                            <button className="btn btn-primary flex-1 text-white font-bold h-14" onClick={handleSaveAndClose}>기록 저장 및 닫기</button>
                             <button className="btn btn-outline border-gray-200 flex-1 h-14 text-gray-600" onClick={startNewGame}>다시 도전</button>
                         </div>
                     </div>

@@ -5,13 +5,12 @@ export const useTypingGame = () => {
     const [sentenceList, setSentenceList] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [userInput, setUserInput] = useState("");
-    
     const [timeLeft, setTimeLeft] = useState(60); 
     const [isFinished, setIsFinished] = useState(false);
     const [correctCount, setCorrectCount] = useState(0);
 
     // NodeJS.Timeout 대신 범용적인 number 또는 null 사용
-    const timerRef = useRef<any>(null); 
+    const timerRef = useRef<number|null>(null); 
 
     const startNewGame = useCallback(async () => {
         try {
@@ -23,12 +22,10 @@ export const useTypingGame = () => {
             setIsFinished(false);
             setCorrectCount(0);
         } catch (error) {
-            console.error("Failed to load sentences", error);
-            setSentenceList(["The quick brown fox jumps over the lazy dog."]);
+            setSentenceList(["서버 연결 실패. 다시 시도해 주세요."]);
         }
     }, []);
 
-    // 타이머 로직: timeLeft가 변할 때마다 실행되는 대신, 게임 시작 시 한 번만 실행되도록 최적화
     useEffect(() => {
         if (sentenceList.length > 0 && !isFinished) {
             timerRef.current = window.setInterval(() => {
@@ -43,7 +40,6 @@ export const useTypingGame = () => {
             }, 1000);
         }
 
-        // Cleanup: 컴포넌트가 사라지거나 게임이 끝날 때 타이머 제거
         return () => {
             if (timerRef.current) window.clearInterval(timerRef.current);
         };
@@ -53,18 +49,10 @@ export const useTypingGame = () => {
         if (isFinished) return;
         setUserInput(value);
 
-        const currentTarget = sentenceList[currentIndex];
-
-        // 정확히 일치할 경우 다음 문장으로
-        if (value === currentTarget) {
+        if (value === sentenceList[currentIndex]) {
             setCorrectCount(prev => prev + 1);
             setUserInput("");
-            
-            if (currentIndex < sentenceList.length - 1) {
-                setCurrentIndex(prev => prev + 1);
-            } else {
-                setCurrentIndex(0); // 문장 다 쓰면 처음부터 다시
-            }
+            setCurrentIndex(prev => (prev < sentenceList.length - 1 ? prev + 1 : 0));
         }
     };
 

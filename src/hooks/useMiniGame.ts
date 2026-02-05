@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { gameService } from "../services/miniGameService";
 import type { StreamUpdateHandler } from "./useChatStream";
 import type { RankingItem } from "../types";
+import { useUserStore } from "../store/useUserStore";
 
 export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdateHandler) => Promise<void> ) {
     const { setGmthinking } = useChatStore();
@@ -13,6 +14,7 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
     const [riddleText, setRiddleText] = useState("");
     const [gameFeedback, setGameFeedback] = useState("");
     const [isCorrect, setIsCorrect] = useState(false);
+    const { userProfile } = useUserStore();
     const [score, setScore] = useState<number>(() => {
         const saved = sessionStorage.getItem("miniGame_score");
         return saved ? Number(saved) : 0;
@@ -31,8 +33,10 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
 
     const finishGame = () => {
         if (score > 0) {
+            const userName = userProfile.name || "익명";
             const newRecord = {
                 score: score,
+                name: userName,
                 date: new Date().toLocaleDateString(),
             };
 
@@ -85,7 +89,7 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
         setGameFeedback("");
 
         try {
-            const response = await gameService.checkAnswer(answer, attemptCount, token);
+            const response = await gameService.checkAnswer(answer, attemptCount, token, "RIDDLE");
             if (!response.ok) throw new Error();
 
             const gameData = await response.json();

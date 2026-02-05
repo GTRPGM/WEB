@@ -1,11 +1,11 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const gameService = {
-    async generateChat(prompt: string, token: string) {
-        return fetch(`${BASE_URL}/chat/generate`, {
+    async generateChat(prompt: string, token: string, session_id: string) {
+        return fetch(`${BASE_URL}/gm/turn`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-            body: JSON.stringify({ prompt }),
+            body: JSON.stringify({ session_id: session_id, content: prompt }),
         });
     },
 
@@ -16,11 +16,21 @@ export const gameService = {
         });
     },
 
-    async checkAnswer(guess: string, attempt: number, token: string) {
+    async checkAnswer(guess: string, attempt: number, token: string, flag: string) {
         return fetch(`${BASE_URL}/minigame/answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization':`Bearer ${token}`},
-            body: JSON.stringify({ user_guess: guess, current_attempt: attempt }),
+            body: JSON.stringify({ user_guess: guess, current_attempt: Number(attempt), flag: flag }),
+        });
+    },
+
+    async getRandomQuiz(token: string) {
+        return fetch(`${BASE_URL}/minigame/quiz`, {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
         });
     }
 };
