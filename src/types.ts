@@ -1,6 +1,12 @@
 export interface UserProfile {
   name: string;
   inventory: InventoryItem[];
+  hp: number;
+  gold: number;
+  scenario_id: string | null;
+  player_id: string;
+  session_id: string;
+  location: string,
 }
 
 export interface AuthInfo {
@@ -65,4 +71,10 @@ export interface MiniGameModalProps {
   score: number;
   solvedCount: number;
   rankings: RankingItem[];
+}
+
+export interface NpcRelation {
+    npc_id: string;
+    npc_name: string;
+    affinity_score: number;
 }
