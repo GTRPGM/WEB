@@ -10,8 +10,6 @@ export default function SidebarQuizButton() {
 
     // 1. 마우스 호버 시 퀴즈 텍스트 가져오기
     const handleMouseEnter = async () => {
-        if (quizText !== "마우스를 올려 퀴즈를 확인하세요!") return;
-        
         const token = useAuthStore.getState().access_token;
 
         if (token) {
