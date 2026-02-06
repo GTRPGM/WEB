@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useUserStore } from "../store/useUserStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/authService"; // logoutUser 임포트
 
 export default function Navbar() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -10,10 +11,19 @@ export default function Navbar() {
   const clearUser = useUserStore((state) => state.logout);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    if (clearUser) clearUser();
-    navigate('/login', { replace: true });
+  const handleLogout = async () => { // 비동기 함수로 변경
+    try {
+      await logoutUser(); // 백엔드 로그아웃 API 호출
+      alert('성공적으로 로그아웃되었습니다.');
+    } catch (error: any) {
+      console.error('백엔드 로그아웃 실패:', error);
+      alert(error.response?.data?.message || '로그아웃에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      // API 호출 성공 여부와 관계없이 클라이언트 측 상태 정리 및 페이지 이동
+      logout();
+      if (clearUser) clearUser();
+      navigate('/login', { replace: true });
+    }
   }
 
   return (
@@ -115,6 +125,10 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      <Link to="/edit-profile" className="text-xs text-gray-500 hover:underline ml-4">
+        회원 정보 수정
+      </Link>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { api } from "../apiinterceptor";
@@ -76,8 +76,7 @@ export default function Login() {
                             </button>
                         </div>
                         <div className="flex justify-between w-full mt-6 text-xs text-gray-400">
-                            <span className="hover:underline cursor-pointer">회원가입</span>
-                            <span className="hover:underline cursor-pointer">비밀번호 찾기</span>
+                            <Link to="/signup" className="hover:underline cursor-pointer">회원가입</Link>
                         </div>
                     </form>
                 </div>
