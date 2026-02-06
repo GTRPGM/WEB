@@ -7,18 +7,23 @@ export default function SidebarQuizButton() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [userAnswer, setUserAnswer] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [quizLoaded, setQuizLoaded] = useState(false); // 퀴즈 로드 여부 추적
 
     // 1. 마우스 호버 시 퀴즈 텍스트 가져오기
     const handleMouseEnter = async () => {
+        if (quizLoaded) { // 이미 퀴즈가 로드된 경우 다시 불러오지 않음
+            return;
+        }
+
         const token = useAuthStore.getState().access_token;
 
         if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.exp * 1000 < Date.now()) {
-            setQuizText("세션이 만료되었습니다. 다시 로그인해주세요.");
-            return;
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.exp * 1000 < Date.now()) {
+                setQuizText("세션이 만료되었습니다. 다시 로그인해주세요.");
+                return;
+            }
         }
-    }
 
         if (!token || token === "null") {
             setQuizText("로그인이 필요합니다.");
@@ -28,11 +33,10 @@ export default function SidebarQuizButton() {
         try {
             const response = await gameService.getRandomQuiz(token);
             if (response.ok) {
-                // 서버가 일반 문자열을 반환하므로 .text() 사용
                 const data = await response.text();
                 setQuizText(data);
+                setQuizLoaded(true); // 퀴즈 로드 완료
             } else {
-                // 500 에러 등의 경우 상세 원인 파악을 위해 에러 메시지 노출
                 const errorData = await response.json().catch(() => ({}));
                 console.error("Quiz Fetch Error:", errorData);
                 setQuizText(`문제를 가져오지 못했습니다. (Status: ${response.status})`);
@@ -56,7 +60,6 @@ export default function SidebarQuizButton() {
         setIsSubmitting(true);
 
         try {
-            // flag를 "QUIZ"로, 시도 횟수를 1로 설정하여 전송
             const response = await gameService.checkAnswer(userAnswer, 1, token, "QUIZ");
             
             if (!response.ok) {
@@ -68,12 +71,12 @@ export default function SidebarQuizButton() {
             const result = await response.json();
             console.log("Quiz Result:", result);
 
-            // 서버 응답 구조(is_correct 또는 status)에 따른 처리
             if (result.is_correct || result.status === "success" || result.correct) {
                 alert("🎉 정답입니다! 도감이 업데이트되었습니다.");
                 setIsPopupOpen(false);
                 setUserAnswer("");
                 setQuizText("마우스를 올려 퀴즈를 확인하세요!"); // 성공 후 초기화
+                setQuizLoaded(false); // 정답 맞췄으므로 다음 호버 시 새 퀴즈 로드
             } else {
                 alert(`❌ 틀렸습니다! 다시 생각해보세요.\n(힌트: ${result.message || '오답입니다.'})`);
             }
