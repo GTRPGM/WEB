@@ -13,9 +13,11 @@ export default function Login() {
 
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');
+    const [error, setError] = useState(''); // 에러 메시지를 위한 상태 추가
 
     const handleStartSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(''); // 새 로그인 시도 전에 에러 메시지 초기화
 
         try {
             const res = await api.post('/auth/login', { username: id, password: pw });
@@ -29,8 +31,9 @@ export default function Login() {
             
             setTimeout(() => {navigate('/create-char');}, 200);
 
-        } catch (error) {
-            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        } catch (err: any) { // 에러 타입 명시
+            const errorMessage = err.response?.data?.detail || '로그인 중 알 수 없는 오류가 발생했습니다.';
+            setError(errorMessage);
         }
     };
 
@@ -68,6 +71,7 @@ export default function Login() {
                                 placeholder="Password"
                                 className="input input-bordered w-full focus:input-primary"
                             />
+                            {error && <div className="text-error text-sm mt-2">{error}</div>} {/* 에러 메시지 표시 */}
                             <button
                                 type="submit"
                                 className="btn btn-primary w-full mt-4 text-white font-bold"

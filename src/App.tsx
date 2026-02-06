@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import withAuth from './hoc/withAuth';
 import GameMain from './pages/gamemain';
 import Login from './pages/login'
@@ -11,6 +11,7 @@ import EditProfile from './pages/edit-profile';
 import ChangeUsername from './pages/change-username';
 import ChangeEmail from './pages/change-email';
 import ChangePassword from './pages/change-password';
+import { setNavigator } from './apiinterceptor';
 
 
 const ProtectedCreateChar = withAuth(CreateChar);
@@ -21,12 +22,17 @@ const ProtectedChangeEmail = withAuth(ChangeEmail);
 const ProtectedChangePassword = withAuth(ChangePassword);
 
 function App() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const startLoading = () => setIsLoading(true);
   const handleLoadingComplete = () => setIsLoading(false);
 
+  useEffect(() => {
+    setNavigator(navigate);
+  }, [navigate]);
+
   return (
-    <BrowserRouter>
+    <>
       {isLoading && <GameLoader onLoadingComplete={handleLoadingComplete} />}
 
       <Routes>
@@ -43,8 +49,16 @@ function App() {
 
         <Route path='*' element={<Navigate to="/login" replace />} />
       </Routes>
+    </>
+  );
+}
+
+function AppWrapper() {
+  return (
+    <BrowserRouter>
+      <App />
     </BrowserRouter>
   );
 }
 
-export default App;
+export default AppWrapper;

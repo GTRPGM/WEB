@@ -1,4 +1,5 @@
 import { api } from '../apiinterceptor';
+import { useAuthStore } from '../store/useAuthStore';
 
 // 회원가입 요청 데이터 타입
 interface RegisterData {
@@ -72,4 +73,11 @@ export const logoutUser = async () => {
         console.error('로그아웃 실패:', error);
         throw error;
     }
+};
+
+// 토큰 재발급 API 호출
+export const refreshToken = async () => {
+    const { refresh_token } = useAuthStore.getState();
+    const response = await api.post('/auth/refresh', { refresh_token });
+    return response.data.access_token;
 };
