@@ -62,17 +62,14 @@ export default function Navbar() {
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                    <span className="font-bold text-red-500">HP</span>
-                   <span className="text-gray-600">80 / 100</span>
+                   <span className="text-gray-600">{userProfile?.hp ?? 0} / 100</span>
                   </div>
-                  <progress className="progress progress-error w-full h-2" value="80" max="100"></progress>
+                  <progress className="progress progress-error w-full h-2" value={userProfile?.hp ?? 0} max="100"></progress>
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="font-bold text-blue-500">MP</span>
-                    <span className="text-gray-600">45 / 50</span>
-                  </div>
-                  <progress className="progress progress-info w-full h-2" value="45" max="100"></progress>
+                <div className="flex justify-between items-center text-xs text-gray-500">
+                  <span className="font-bold">GOLD</span>
+                  <span className="text-yellow-600 font-mono">{(userProfile?.gold ?? 0).toLocaleString()} G</span>
                 </div>
 
                 <div className="mt-4">
