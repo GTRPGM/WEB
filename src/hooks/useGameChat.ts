@@ -17,17 +17,40 @@ export function useGameChat() {
         addSummaryMessage // addSummaryMessage 가져오기
     } = useChatStore();
     const { processStream } = useChatStream();
+<<<<<<< user-info
     const miniGame = useMiniGame();
     const myName = useUserStore((state) => state.userProfile.name);
+=======
+    const { initializeGame } = useUserStore();
+    const miniGame = useMiniGame(processStream);
+>>>>>>> dev
 
     const handleSendMessage = useCallback(async (text: string) => {
         if (!text.trim()) return;
+<<<<<<< user-info
         if (!sessionId) {
             console.error("Session ID is not available. Cannot send turn.");
             addMessage('System', '게임 세션이 시작되지 않았습니다. 게임을 다시 시작해주세요.', myName, 'system');
             return;
         }
+=======
+
+        const token = useAuthStore.getState().access_token ?? "";
+        let session_id = useUserStore.getState().userProfile.session_id;
+>>>>>>> dev
         
+        if (!session_id) {
+            console.log("세션 id가 없어 초기화를 시작합니다...");
+            const freshSessionId = await initializeGame(); 
+
+            if(!freshSessionId) {
+                addMessage('System', '게임 세션을 시작할 수 없습니다.');
+                return;
+            }
+        // 중요: 스토어에서 다시 꺼내지 말고, 방금 받은 값을 변수에 넣습니다.
+            session_id = freshSessionId;
+        }
+
         setGmthinking(true);
         addMessage(myName, text, myName, 'user');
 
@@ -103,15 +126,34 @@ export function useGameChat() {
 
         setGmthinking(true);
         try {
+<<<<<<< user-info
             const summaryContent = await getOpeningSummary(sessionId);
             if (summaryContent) {
                 addSummaryMessage(summaryContent, myName);
             }
+=======
+            const response = await gameService.generateChat(text, token, session_id);
+            if (!response.ok) throw new Error();
+
+            // 1. 먼저 빈 메시지 생성 후 ID 확보
+            const msgId = addMessage('GM', '');
+            
+            // 2. 스트림 처리하며 해당 메시지 내용 업데이트
+            await processStream(response, (accumulated: string) => {
+                updateMessageContent(msgId, accumulated);
+            });
+>>>>>>> dev
         } catch (error) {
             console.error("Failed to fetch current summary:", error);
             addMessage('GM', '현재 요약을 불러오는 데 실패했습니다.', myName, 'system');
         } finally {
             setGmthinking(false);
+<<<<<<< user-info
+=======
+            addMessage('GM', '연결에 실패했습니다.');
+        } finally {
+            setGmthinking(false);
+>>>>>>> dev
         }
     }, [sessionId, addSummaryMessage, addMessage, setGmthinking, myName]);
 
