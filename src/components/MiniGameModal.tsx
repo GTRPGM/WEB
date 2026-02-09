@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { MiniGameModalProps } from "../types";
+import type { MiniGameModalProps, RankingItem } from "../types"; // RankingItem 임포트 추가
 
 export default function MiniGameModal({ 
   isOpen, 
@@ -134,7 +134,7 @@ export default function MiniGameModal({
                 </thead>
                 <tbody>
                   {rankings.length > 0 ? (
-                    rankings.map((rk: any, index: number) => (
+                    rankings.map((rk: RankingItem, index: number) => ( // rk 타입을 RankingItem으로 변경
                       <tr key={index} className={index === 0 ? "text-yellow-400 font-bold" : ""}>
                         <td>{index + 1}위 {index === 0 }</td>
                         <td className="text-xs">{rk.name}</td>

@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { api } from "../apiinterceptor";
+import axios from "axios"; // axios 임포트
 
 export default function Login() {
     const navigate = useNavigate();
@@ -13,9 +14,11 @@ export default function Login() {
 
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');
+    const [error, setError] = useState(''); // 에러 메시지를 위한 상태 추가
 
     const handleStartSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(''); // 새 로그인 시도 전에 에러 메시지 초기화
 
         try {
             const res = await api.post('/auth/login', { username: id, password: pw });
@@ -29,8 +32,13 @@ export default function Login() {
             
             setTimeout(() => {navigate('/create-char');}, 200);
 
-        } catch (error) {
-            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        } catch (err: unknown) { // any를 unknown으로 변경
+            if (axios.isAxiosError(err)) { // axios 에러인지 확인
+                const errorMessage = err.response?.data?.detail || '로그인 중 알 수 없는 오류가 발생했습니다.';
+                setError(errorMessage);
+            } else {
+                setError('로그인 중 알 수 없는 오류가 발생했습니다.');
+            }
         }
     };
 
@@ -68,6 +76,7 @@ export default function Login() {
                                 placeholder="Password"
                                 className="input input-bordered w-full focus:input-primary"
                             />
+                            {error && <div className="text-error text-sm mt-2">{error}</div>} {/* 에러 메시지 표시 */}
                             <button
                                 type="submit"
                                 className="btn btn-primary w-full mt-4 text-white font-bold"
@@ -76,8 +85,7 @@ export default function Login() {
                             </button>
                         </div>
                         <div className="flex justify-between w-full mt-6 text-xs text-gray-400">
-                            <span className="hover:underline cursor-pointer">회원가입</span>
-                            <span className="hover:underline cursor-pointer">비밀번호 찾기</span>
+                            <Link to="/signup" className="hover:underline cursor-pointer">회원가입</Link>
                         </div>
                     </form>
                 </div>

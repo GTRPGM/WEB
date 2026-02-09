@@ -19,7 +19,7 @@ export default function Sidebar() {
         fetchEnemies();
         fetchItems();
         fetchNPCs();
-    }, []);
+    }, [fetchEnemies, fetchItems, fetchNPCs]);
 
     // 4. 필터링 로직 (데이터가 배열인지 확인 후 필터링)
     const filteredEnemies = Array.isArray(allEnemies)

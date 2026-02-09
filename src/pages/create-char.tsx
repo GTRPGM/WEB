@@ -8,11 +8,7 @@ declare global {
     }
 }
 
-interface CreateCharProps {
-        onStartGame?: () => void;
-    }
-
-export default function CreateChar({onStartGame}: CreateCharProps) {
+export default function CreateChar() { // onStartGame prop 제거
     const [inputName, setInputName] = useState('');
     const navigate = useNavigate();
     const setCharacterName = useUserStore((state) => state.setCharacterName);
@@ -26,11 +22,9 @@ export default function CreateChar({onStartGame}: CreateCharProps) {
             window.bgm = audio;
 
             setCharacterName(inputName);
-            if (onStartGame) {
-                onStartGame();
-            }
+            // onStartGame 호출 제거
 
-            navigate('/gamemain');
+            navigate('/select-scenario'); // gamemain 대신 select-scenario로 이동
         }
     };
 

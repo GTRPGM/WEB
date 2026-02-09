@@ -21,7 +21,7 @@ export const useTypingGame = () => {
             setTimeLeft(60);
             setIsFinished(false);
             setCorrectCount(0);
-        } catch (error) {
+        } catch { // error 변수 제거
             setSentenceList(["서버 연결 실패. 다시 시도해 주세요."]);
         }
     }, []);

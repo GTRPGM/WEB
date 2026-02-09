@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useAuthStore } from "../store/useAuthStore";
+// import { useAuthStore } from "../store/useAuthStore"; // useAuthStore 제거
 import { gameService } from "../services/miniGameService";
-import type { StreamUpdateHandler } from "./useChatStream";
+import { useChatStream } from "./useChatStream"; // useChatStream 임포트
 import type { RankingItem } from "../types";
 import { useUserStore } from "../store/useUserStore";
 
-export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdateHandler) => Promise<void> ) {
+export function useMiniGame() { // processStream 인자 제거
     const { setGmthinking } = useChatStore();
+    const { processStream } = useChatStream(); // processStream 직접 사용
     const [attemptCount, setAttemptCount] = useState(1);
     const [isMiniGameActive, setMiniGameActive] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,22 +61,23 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
     }
 
     const startMiniGame = async () => {
-        const token = useAuthStore.getState().access_token ?? "";
+        // const token = useAuthStore.getState().access_token ?? ""; // token 제거
         setIsModalOpen(true);
         setGmthinking(true);
         setRiddleText("");
         setGameFeedback("");
 
         try {
-            const response = await gameService.getMiniGame(token);
-            if (!response.ok) throw new Error();
+            const riddleData = await gameService.getMiniGame(); // token 제거
+            // if (!response.ok) throw new Error(); // axios에서 에러 처리됨
 
             setMiniGameActive(true);
             setAttemptCount(1);
             setIsCorrect(false);
 
-            await processStream(response, (text: string) => { setRiddleText(text) });
-        } catch (error) {
+            // riddleData가 riddle 텍스트를 포함한다고 가정
+            await processStream(riddleData.riddle, (text: string) => { setRiddleText(text) });
+        } catch {
             setGameFeedback("미니게임을 불러오지 못했습니다.");
         } finally {
             setGmthinking(false);
@@ -84,15 +86,14 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
 
     const handleAnswerSubmit = async (answer: string) => {
         if (!answer.trim()) return;
-        const token = useAuthStore.getState().access_token ?? "";
+        // const token = useAuthStore.getState().access_token ?? ""; // token 제거
         setGmthinking(true);
         setGameFeedback("");
 
         try {
-            const response = await gameService.checkAnswer(answer, attemptCount, token, "RIDDLE");
-            if (!response.ok) throw new Error();
-
-            const gameData = await response.json();
+            const gameData = await gameService.checkAnswer(answer, attemptCount, "RIDDLE"); // token 제거
+            // if (!response.ok) throw new Error(); // axios에서 에러 처리됨
+            
             console.log("서버 응답 데이터:", gameData);
             const result = gameData.data || gameData;
             setGameFeedback(result.message);
@@ -110,7 +111,7 @@ export function useMiniGame(processStream: (res: Response, onUpdate: StreamUpdat
                 setGameFeedback(result.message);
                 setAttemptCount(prev => result.fail_count || prev + 1);
             }
-        } catch (error) {
+        } catch {
             setGameFeedback("정답 확인 중 오류가 발생했습니다.");
         } finally {
             setGmthinking(false);
