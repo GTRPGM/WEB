@@ -1,36 +1,22 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from '../apiinterceptor';
 
 export const gameService = {
-    async generateChat(prompt: string, token: string, session_id: string) {
-        return fetch(`${BASE_URL}/gm/turn`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-            body: JSON.stringify({ session_id: session_id, content: prompt }),
-        });
+    async getMiniGame() { // token 파라미터 제거
+        const response = await api.get('/minigame/riddle');
+        return response.data;
     },
 
-    async getMiniGame(token: string) {
-        return fetch(`${BASE_URL}/minigame/riddle`, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` },
+    async checkAnswer(guess: string, attempt: number, flag: string) { // token 파라미터 제거
+        const response = await api.post('/minigame/answer', { 
+            user_guess: guess, 
+            current_attempt: Number(attempt), 
+            flag: flag 
         });
+        return response.data;
     },
 
-    async checkAnswer(guess: string, attempt: number, token: string, flag: string) {
-        return fetch(`${BASE_URL}/minigame/answer`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization':`Bearer ${token}`},
-            body: JSON.stringify({ user_guess: guess, current_attempt: Number(attempt), flag: flag }),
-        });
-    },
-
-    async getRandomQuiz(token: string) {
-        return fetch(`${BASE_URL}/minigame/quiz`, {
-            method: 'GET',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-        });
+    async getRandomQuiz() { // token 파라미터 제거
+        const response = await api.get('/minigame/quiz');
+        return response.data;
     }
 };

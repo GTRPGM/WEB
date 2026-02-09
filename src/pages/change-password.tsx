@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { changePassword } from '../services/authService';
+import axios from 'axios'; // axios 임포트
 
 export default function ChangePassword() {
     const navigate = useNavigate();
@@ -26,8 +27,12 @@ export default function ChangePassword() {
             setTimeout(() => {
                 navigate('/edit-profile'); // 성공 시 메뉴 페이지로 이동
             }, 2000);
-        } catch (err: any) {
-            setError(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+        } catch (err: unknown) { // any를 unknown으로 변경
+            if (axios.isAxiosError(err)) { // axios 에러인지 확인
+                setError(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+            } else {
+                setError('알 수 없는 오류로 비밀번호 변경에 실패했습니다.');
+            }
         }
     };
 

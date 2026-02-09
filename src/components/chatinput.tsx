@@ -2,9 +2,10 @@ import { useState } from "react";
 
 interface ChatInputProps {
     onSend: (text: string) => void;
+    onRefreshSummary: () => void; // Add onRefreshSummary prop
 }
 
-export default function ChatInput({onSend}: ChatInputProps) {
+export default function ChatInput({onSend, onRefreshSummary}: ChatInputProps) {
     const [text, setText] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -19,10 +20,10 @@ export default function ChatInput({onSend}: ChatInputProps) {
         <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 bg-white">
           <div className="flex items-center gap-2 max-w-4xl mx-auto">
             
-            {/* 추가 기능 */}
-            <button className="btn btn-ghost btn-circle btn-sm text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            {/* 요약 새로고침 버튼 */}
+            <button type="button" onClick={onRefreshSummary} className="btn btn-ghost btn-circle btn-sm text-gray-400">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
               </svg>
             </button>
             

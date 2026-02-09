@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/authService';
+import axios from 'axios'; // axios 임포트
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -27,8 +28,12 @@ export default function Signup() {
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
-        } catch (err: any) {
-            setError(err.response?.data?.message || '회원가입에 실패했습니다.');
+        } catch (err: unknown) { // any를 unknown으로 변경
+            if (axios.isAxiosError(err)) { // axios 에러인지 확인
+                setError(err.response?.data?.message || '회원가입에 실패했습니다.');
+            } else {
+                setError('알 수 없는 오류로 회원가입에 실패했습니다.');
+            }
         }
     };
 

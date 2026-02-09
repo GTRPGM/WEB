@@ -1,20 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import withAuth from './hoc/withAuth';
 import GameMain from './pages/gamemain';
 import Login from './pages/login'
 import './App.css'
 import CreateChar from './pages/create-char';
-import GameLoader from './components/GameLoader';
 import Signup from './pages/signup';
 import EditProfile from './pages/edit-profile';
 import ChangeUsername from './pages/change-username';
 import ChangeEmail from './pages/change-email';
 import ChangePassword from './pages/change-password';
+import SelectScenario from './pages/select-scenario';
 import { setNavigator } from './apiinterceptor';
-
+// GameLoader imports removed
 
 const ProtectedCreateChar = withAuth(CreateChar);
+const ProtectedSelectScenario = withAuth(SelectScenario);
 const ProtectedGameboard = withAuth(GameMain);
 const ProtectedEditProfile = withAuth(EditProfile);
 const ProtectedChangeUsername = withAuth(ChangeUsername);
@@ -23,9 +24,7 @@ const ProtectedChangePassword = withAuth(ChangePassword);
 
 function App() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const startLoading = () => setIsLoading(true);
-  const handleLoadingComplete = () => setIsLoading(false);
+  // isLoadingGameSession and other loader-related state removed
 
   useEffect(() => {
     setNavigator(navigate);
@@ -33,12 +32,13 @@ function App() {
 
   return (
     <>
-      {isLoading && <GameLoader onLoadingComplete={handleLoadingComplete} />}
+      {/* GameLoader rendering removed */}
 
       <Routes>
         <Route path='/login' element={<Login/>} />
         <Route path='/signup' element={<Signup />} />
-        <Route path='/create-char' element={<ProtectedCreateChar onStartGame={startLoading}/>} />
+        <Route path='/create-char' element={<ProtectedCreateChar />} />
+        <Route path='/select-scenario' element={<ProtectedSelectScenario />} />
         <Route path='/gamemain' element={<ProtectedGameboard />} />
         
         {/* 회원 정보 수정 관련 라우트 */}

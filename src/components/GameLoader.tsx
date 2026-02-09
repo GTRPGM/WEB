@@ -1,84 +1,14 @@
-import { useState, useEffect } from "react";
-import api from "../apiinterceptor";
+import { useState } from "react";
+// import api from "../apiinterceptor"; // api import removed as it's no longer used
 
-interface GameLoaderProps {
-    onLoadingComplete: () => void;
-}
+export default function GameLoader() {
+    const [loadingText] = useState("게임 데이터를 불러오는 중...");
+    const [currentTip] = useState("잠시만 기다려주세요.");
 
-interface LoadingData {
-    phrases: string[];
-    tips: string[];
-}
+    // All internal logic for timing and completion removed.
+    // The component will just display its UI until unmounted by parent.
 
-export default function GameLoader({ onLoadingComplete }: GameLoaderProps) {
-    const [progress, setProgress] = useState(0);
-    const [loadingText, setLoadingText] = useState("통신 채널 확보 중...");
-    const [currentTip, setCurrentTip] = useState("수수께끼를 풀어보세요.");
-    const [apiData, setApiData] = useState<LoadingData | null>(null);
-
-    useEffect(() => {
-        const fetchLoadingData = async () => {
-            try {
-                const response = await api.get("/info/loading-messages");
-                setApiData(response.data);
-                if (response.data.phrases?.length > 0) setLoadingText(response.data.phrases[0]);
-                if (response.data.tips?.length > 0) setCurrentTip(response.data.tips[0]);
-            } catch (error) {
-                console.error("데이터 로드 실패");
-            }
-        };
-        fetchLoadingData();
-
-        const duration = 15000; 
-        const intervalTime = 100;
-        const increment = 100 / (duration / intervalTime);
-
-        const progressTimer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) {
-                    clearInterval(progressTimer);
-                    setTimeout(handleFinishWithFate, 500);
-                    return 100;
-                }
-                return prev + increment;
-            });
-        }, intervalTime);
-
-        const handleFinishWithFate = () => {
-            if (window.bgm) {
-                const audio = window.bgm;
-                const fadeOut = setInterval(() => {
-                    if (audio.volume > 0.05) {
-                        audio.volume -= 0.05;
-                    } else {
-                        audio.pause();
-                        audio.currentTime = 0;
-                        clearInterval(fadeOut);
-                        window.bgm = undefined;
-                        onLoadingComplete();
-                    }
-                }, 50);
-            } else {
-                onLoadingComplete();
-            }
-        };
-
-        const textTimer = setInterval(() => {
-            if (apiData) {
-                const randomPhrase = apiData.phrases[Math.floor(Math.random() * apiData.phrases.length)];
-                const randomTip = apiData.tips[Math.floor(Math.random() * apiData.tips.length)];
-                setLoadingText(randomPhrase);
-                setCurrentTip(randomTip);
-            }
-        }, 3500);
-
-        return () => {
-            clearInterval(progressTimer);
-            clearInterval(textTimer);
-        };
-    }, [onLoadingComplete, apiData]);
-
-return (
+    return (
         <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white text-gray-800 overflow-hidden">
             
             {/* 📡 배경 애니메이션: 펄스 (진한 파란색으로 변경) */}
@@ -100,13 +30,11 @@ return (
 
                 <div className="flex justify-between mb-3 px-1">
                     <span className="text-xs font-bold text-gray-600">{loadingText}</span>
-                    <span className="text-xs font-bold text-primary">{Math.round(progress)}%</span>
                 </div>
 
                 <div className="w-full h-3 bg-gray-200 rounded-full border border-gray-300 p-[1px] shadow-inner">
                     <div
                         className="h-full bg-primary rounded-full transition-all duration-300 ease-out shadow-md"
-                        style={{ width: `${progress}%` }}
                     ></div>
                 </div>
 

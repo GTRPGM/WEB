@@ -1,19 +1,34 @@
-import { useUserStore } from '../store/useUserStore'
 import Navbar from '../components/navbar'
 import ChatLog from '../components/chatlog'
 import ChatInput from '../components/chatinput'
 import { useChatStore } from '../store/useChatStore'
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import EnemySidebar from '../components/sidebar'
 import { useGameChat } from '../hooks/useGameChat'
 import MiniGameModal from '../components/MiniGameModal'
 import TypingGameModal from '../components/TypingGameModal'
+import { getOpeningSummary } from '../services/gameService'
+import { useChatStream } from '../hooks/useChatStream'
+import GameLoader from '../components/GameLoader'; // Import GameLoader
+import { useUserStore } from '../store/useUserStore' // useUserStore를 임포트
 
 export default function GameMain() {
-  const userProfile = useUserStore((state) => state.userProfile);
-  const { messages, isGMThinking } = useChatStore();
+  // const userProfile = useUserStore((state) => state.userProfile); // 사용되지 않으므로 제거
+  const { 
+    messages, 
+    isGMThinking, 
+    sessionId, 
+    addMessage, 
+    updateMessageContent, 
+    setGmthinking, 
+    setLoadingGameSession,
+    isLoadingGameSession, // Add this
+    addSummaryMessage // Add addSummaryMessage
+  } = useChatStore(); 
+  const { processStream } = useChatStream();
   const { 
     handleSendMessage, 
+    fetchCurrentSummary, // Add fetchCurrentSummary here
     handleAnswerSubmit,
     isMiniGameActive, 
     startMiniGame,
@@ -29,21 +44,58 @@ export default function GameMain() {
     riddleText,
     gameFeedback 
   } = useGameChat();
+  const myName = useUserStore((state) => state.userProfile.name); // myName 가져오기
 
-  const isInitialFetched = useRef(false);
+  const isOpeningFetched = useRef(false); // 오프닝 메시지를 한 번만 가져오기 위한 ref
   const [isTypingModalOpen, setIsTypingModalOpen] = useState(false);
   const [isTypingActive, setIsTypingActive] = useState(false);
 
   const isAnyGameActive = isMiniGameActive || isTypingActive;
 
+  // 초기 오프닝 메시지 로직
   useEffect(() => {
-    if (!isInitialFetched.current && messages.length === 0) {
-      isInitialFetched.current = true;
-      setTimeout(() => {
-        handleSendMessage("게임 시작 오프닝을 들려줘", "System");
-      }, 100);
+    if (sessionId && !isOpeningFetched.current && messages.length === 0) {
+        isOpeningFetched.current = true; // 플래그 설정
+        setLoadingGameSession(true); // Start game session loading
+        const fetchOpening = async () => {
+            try {
+                const summary = await getOpeningSummary(sessionId);
+                
+                // BGM Fade-out logic moved here
+                if (window.bgm) {
+                    const audio = window.bgm;
+                    const fadeOut = setInterval(() => {
+                        if (audio.volume > 0.05) {
+                            audio.volume -= 0.05;
+                        } else {
+                            audio.pause();
+                            audio.currentTime = 0;
+                            clearInterval(fadeOut);
+                            window.bgm = undefined;
+                        }
+                    }, 50);
+                }
+                
+                setLoadingGameSession(false); // 로딩 화면을 요약 출력 시작과 동시에 사라지게 함
+                const msgId = addMessage('GM', '', myName, 'narration'); // 빈 메시지 추가
+                await processStream(summary, (accumulated: string) => {
+                                updateMessageContent(msgId, accumulated);
+                            });
+            } catch (error) {                
+                console.error("Failed to fetch opening summary:", error);
+                addMessage('GM', '오프닝을 불러오는 데 실패했습니다.', myName, 'system'); // 에러 메시지는 일반 addMessage 사용
+            } finally {
+                // setGmthinking(false); // 이제 useGameChat에서 처리
+            }
+        };
+        fetchOpening();
     }
-  }, [handleSendMessage, messages.length]);
+  }, [sessionId, addMessage, updateMessageContent, setGmthinking, setLoadingGameSession, processStream, messages.length, myName, addSummaryMessage]);
+
+  // Conditionally render GameLoader
+  if (isLoadingGameSession) {
+    return <GameLoader />; // GameLoader는 내부적으로 onSummaryLoaded를 호출하지 않음
+  }
 
   return (
     <div className="drawer lg:drawer-open h-screen overflow-hidden">
@@ -89,7 +141,7 @@ export default function GameMain() {
         </div>
 
         <div className='flex-none'>
-          <ChatInput onSend={(text) => handleSendMessage(text, userProfile.name)} />
+          <ChatInput onSend={(text) => handleSendMessage(text)} onRefreshSummary={fetchCurrentSummary} />
         </div>
       </div>
 

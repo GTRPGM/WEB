@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { api } from "../apiinterceptor";
+import axios from "axios"; // axios 임포트
 
 export default function Login() {
     const navigate = useNavigate();
@@ -31,9 +32,13 @@ export default function Login() {
             
             setTimeout(() => {navigate('/create-char');}, 200);
 
-        } catch (err: any) { // 에러 타입 명시
-            const errorMessage = err.response?.data?.detail || '로그인 중 알 수 없는 오류가 발생했습니다.';
-            setError(errorMessage);
+        } catch (err: unknown) { // any를 unknown으로 변경
+            if (axios.isAxiosError(err)) { // axios 에러인지 확인
+                const errorMessage = err.response?.data?.detail || '로그인 중 알 수 없는 오류가 발생했습니다.';
+                setError(errorMessage);
+            } else {
+                setError('로그인 중 알 수 없는 오류가 발생했습니다.');
+            }
         }
     };
 

@@ -31,16 +31,9 @@ export default function SidebarQuizButton() {
         }
 
         try {
-            const response = await gameService.getRandomQuiz(token);
-            if (response.ok) {
-                const data = await response.text();
-                setQuizText(data);
-                setQuizLoaded(true); // 퀴즈 로드 완료
-            } else {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Quiz Fetch Error:", errorData);
-                setQuizText(`문제를 가져오지 못했습니다. (Status: ${response.status})`);
-            }
+            const data = await gameService.getRandomQuiz(); // Directly get data
+            setQuizText(data); // data is already the text
+            setQuizLoaded(true); // 퀴즈 로드 완료
         } catch (error) {
             console.error("Network Error:", error);
             setQuizText("문제를 불러오지 못했습니다.");
@@ -60,7 +53,7 @@ export default function SidebarQuizButton() {
         setIsSubmitting(true);
 
         try {
-            const response = await gameService.checkAnswer(userAnswer, 1, token, "QUIZ");
+            const response = await gameService.checkAnswer(userAnswer, 1, "QUIZ");
             
             if (!response.ok) {
                 const errorText = await response.text();
@@ -80,7 +73,7 @@ export default function SidebarQuizButton() {
             } else {
                 alert(`❌ 틀렸습니다! 다시 생각해보세요.\n(힌트: ${result.message || '오답입니다.'})`);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Submit Error:", error);
             alert("정답 확인 중 에러가 발생했습니다. CORS 환경이나 서버 상태를 확인해주세요.");
         } finally {

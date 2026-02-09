@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom'; // useNavigate 제거
 import { getUserDetail } from '../services/authService';
 
 interface UserData {
@@ -8,7 +8,7 @@ interface UserData {
 }
 
 export default function EditProfile() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate(); // 사용되지 않으므로 제거
     const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -18,7 +18,7 @@ export default function EditProfile() {
             try {
                 const response = await getUserDetail();
                 setUser(response.data);
-            } catch (err: any) {
+            } catch { // err 변수 제거
                 setError('회원 정보를 불러오는 데 실패했습니다.');
             } finally {
                 setLoading(false);

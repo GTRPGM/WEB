@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { updateUserInfo } from '../services/authService';
+import axios from 'axios'; // axios 임포트
 
 export default function ChangeUsername() {
     const navigate = useNavigate();
@@ -34,8 +35,12 @@ export default function ChangeUsername() {
             setTimeout(() => {
                 navigate('/edit-profile'); // 성공 시 메뉴 페이지로 이동
             }, 2000);
-        } catch (err: any) {
-            setError(err.response?.data?.message || '아이디 변경에 실패했습니다.');
+        } catch (err: unknown) { // any를 unknown으로 변경
+            if (axios.isAxiosError(err)) { // axios 에러인지 확인
+                setError(err.response?.data?.message || '아이디 변경에 실패했습니다.');
+            } else {
+                setError('알 수 없는 오류로 아이디 변경에 실패했습니다.');
+            }
         }
     };
 
