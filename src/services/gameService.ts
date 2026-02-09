@@ -1,4 +1,5 @@
 import api from '../apiinterceptor';
+import type { PlayerStatusResponse, Message } from '../types';
 
 // startSession의 반환 데이터 타입을 위한 인터페이스
 export interface SessionData {
@@ -32,7 +33,7 @@ export interface Transition {
 }
 
 export interface Segment {
-  type: string;
+  type?: Message['type']; // Change type to Message['type']
   role: string;
   content: string;
 }

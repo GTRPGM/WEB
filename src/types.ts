@@ -54,6 +54,12 @@ export interface RankingItem {
   date: string;
 }
 
+// Define a more specific type for player_npc_relations
+export interface PlayerNPCRelation {
+  npc_id: string;
+  relation_status: string; // e.g., 'friendly', 'neutral', 'hostile'
+}
+
 export interface PlayerStatusResponse {
   status: string;
   data: {
@@ -71,7 +77,7 @@ export interface PlayerStatusResponse {
         is_stackable: boolean;
       }[];
     };
-    player_npc_relations: any[]; // assuming array of any for now
+    player_npc_relations: PlayerNPCRelation[]; // assuming array of any for now
   };
   message: string | null;
 }
