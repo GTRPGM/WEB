@@ -50,6 +50,9 @@ export const useChatStore = create<ChatState>((set) => ({
 
     addMessage: (sender, content, myName, type) => {
         const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        const myName = useUserStore.getState().userProfile.name;
+        const color = sender === 'GM' ? 'bg-blue-500' : (sender === myName ? 'bg-gray-700' : 'bg-gray-500');
         const newMessage: Message = {
             id,
             sender,

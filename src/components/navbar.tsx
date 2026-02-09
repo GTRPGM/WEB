@@ -78,6 +78,7 @@ export default function Navbar() {
               {isLoadingPlayerStatus && <p className="text-center text-gray-500">플레이어 정보 불러오는 중...</p>}
               {playerStatusError && <p className="text-center text-red-500">{playerStatusError}</p>}
 
+<<<<<<< user-info
               {playerStatus && (
                 <div className="py-2 space-y-3">
                   <div>
@@ -95,6 +96,21 @@ export default function Navbar() {
                     </div>
                     <progress className="progress progress-warning w-full h-2" value={playerStatus.gold} max={1000}></progress> {/* Max gold 1000 as example */}
                   </div>
+=======
+              <div className="py-2 space-y-3">
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                   <span className="font-bold text-red-500">HP</span>
+                   <span className="text-gray-600">{userProfile?.hp ?? 0} / 100</span>
+                  </div>
+                  <progress className="progress progress-error w-full h-2" value={userProfile?.hp ?? 0} max="100"></progress>
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-gray-500">
+                  <span className="font-bold">GOLD</span>
+                  <span className="text-yellow-600 font-mono">{(userProfile?.gold ?? 0).toLocaleString()} G</span>
+                </div>
+>>>>>>> dev
 
                   <div className="mt-4">
                     <div className="flex justify-between items-center mb-2">
