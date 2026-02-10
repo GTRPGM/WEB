@@ -78,16 +78,16 @@ export default function SelectScenario() {
 
             {/* 시나리오 선택 UI는 시나리오 로딩 중이 아니고 전역 게임 세션 로딩 중이 아닐 때만 렌더링 */}
             {/* !isLoading && ( */}
-            <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-                <div className="card w-full max-w-md bg-white shadow-xl border border-gray-200 p-6">
-                    <h2 className="card-title text-3xl font-black text-gray-800 mb-6 uppercase tracking-widest text-center w-full justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+                <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300 p-6">
+                    <h2 className="card-title text-3xl font-black text-base-content mb-6 uppercase tracking-widest text-center w-full justify-center">
                         시나리오 선택
                     </h2>
 
                     {isLoadingScenarios && ( // 시나리오 로딩 스피너
                         <div className="text-center my-4">
                             <span className="loading loading-spinner loading-lg text-primary"></span>
-                            <p className="text-gray-600 mt-2">시나리오 불러오는 중...</p>
+                            <p className="text-base-content/90 mt-2">시나리오 불러오는 중...</p>
                         </div>
                     )}
 
@@ -132,7 +132,7 @@ export default function SelectScenario() {
 
                             <button
                                 onClick={handleStartGame}
-                                className="btn btn-primary w-full mt-4 text-white font-bold"
+                                className="btn btn-primary w-full mt-4 text-primary-content font-bold"
                                 disabled={!selectedScenarioId || !locationInput.trim()}
                             >
                                 게임 시작
@@ -140,7 +140,7 @@ export default function SelectScenario() {
                         </>
                     ) : (
                         // 시나리오 로딩 중이 아니고 시나리오가 없을 때 메시지
-                        !isLoadingScenarios && !error && <p className="text-center text-gray-500">불러올 시나리오가 없습니다.</p>
+                        !isLoadingScenarios && !error && <p className="text-center text-base-content/80">불러올 시나리오가 없습니다.</p>
                     )}
                 </div>
             </div>

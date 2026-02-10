@@ -12,7 +12,7 @@ interface ChatLogProps {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const getTextColorClass = (bgColorClass: string | undefined) => {
-        if (!bgColorClass) return 'text-gray-900'; // Default color
+        if (!bgColorClass) return 'text-base-content'; // Default color
         return bgColorClass.replace('bg-', 'text-');
     };
     const scrollToBottom = () => {
@@ -50,17 +50,17 @@ interface ChatLogProps {
                     const getContentClasses = () => {
                         switch (msg.type) {
                             case 'user':
-                                return 'bg-blue-300 p-3 rounded-2xl rounded-br-none text-gray-800 text-left';
+                                return 'bg-primary text-primary-content p-3 rounded-2xl rounded-br-none text-left';
                             case 'narration':
-                                return 'bg-gray-200 p-3 rounded-2xl text-gray-800 text-center';
+                                return 'bg-base-300/15 text-base-content p-3 rounded-2xl text-center';
                             case 'dialogue':
-                                return 'bg-gray-50 p-3 rounded-2xl rounded-tl-none text-gray-800 text-left';
+                                return 'bg-base-300 text-primary-content p-3 rounded-2xl rounded-tl-none text-left';
                             case 'action':
-                                return 'text-gray-600 italic'; // Italic, no background
+                                return 'text-base-content/90 italic'; // Italic, no background
                             default: // Fallback for older messages or system messages
-                                return msg.isGM ? 'bg-gray-200 p-3 rounded-2xl text-gray-800 text-center' 
-                                     : msg.isUserMessage ? 'bg-blue-300 p-3 rounded-2xl rounded-br-none text-gray-800 text-left'
-                                     : 'bg-gray-50 p-3 rounded-2xl rounded-tl-none text-gray-800 text-left';
+                                return msg.isGM ? 'bg-base-200 text-base-content p-3 rounded-2xl text-center' 
+                                     : msg.isUserMessage ? 'bg-primary text-primary-content p-3 rounded-2xl rounded-br-none text-left'
+                                     : 'bg-base-300 text-base-content p-3 rounded-2xl rounded-tl-none text-left';
                         }
                     };
 
@@ -71,7 +71,7 @@ interface ChatLogProps {
                     >
                         {/* Avatar for dialogue/action messages */}
                         {showAvatar && (
-                            <div className={`w-10 h-10 rounded ${msg.color || 'bg-teal-950'} text-white flex items-center justify-center font-bold shrink-0 mt-[1px]`}>
+                            <div className={`w-10 h-10 rounded ${msg.color || 'bg-neutral'} text-neutral-content flex items-center justify-center font-bold shrink-0 mt-[1px]`}>
                                 {msg.sender ? msg.sender[0].toUpperCase() : 'P'}
                             </div>
                         )}
@@ -84,8 +84,8 @@ interface ChatLogProps {
                             {/* Name and Time for non-narration messages */}
                             {showHeader && (
                                 <div className="flex items-center gap-2">
-                                    <span className={`font-bold leading-none ${msg.isGM ? 'text-blue-700' : (msg.isUserMessage ? 'text-gray-900' : getTextColorClass(msg.color))}`}>{msg.sender}</span>
-                                    <span className="text-xs text-gray-400">{msg.time}</span>
+                                    <span className={`font-bold leading-none ${msg.isGM ? 'text-secondary' : (msg.isUserMessage ? 'text-base-content' : getTextColorClass(msg.color))}`}>{msg.sender}</span>
+                                    <span className="text-xs text-base-content/70">{msg.time}</span>
                                 </div>
                             )}
                             
@@ -100,7 +100,7 @@ interface ChatLogProps {
 
                 {isGMThinking && (
                     <div className="flex justify-center p-1 animate-pulse mb-10">
-                        <div className="bg-gray-100 px-3 py-2 rounded-2xl shadow-sm flex items-center justify-center h-9">
+                        <div className="bg-base-300 px-3 py-2 rounded-2xl shadow-sm flex items-center justify-center h-9">
                             <span className="loading loading-dots loading-md text-primary"></span>
                         </div>
                     </div>

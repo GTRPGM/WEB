@@ -37,10 +37,10 @@ export default function EditProfile() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="card w-full max-w-md bg-white shadow-xl border border-gray-200">
+        <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+            <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
                 <div className="card-body">
-                    <h2 className="card-title text-3xl font-black text-gray-800 mb-6 text-center w-full justify-center">
+                    <h2 className="card-title text-3xl font-black text-base-content mb-6 text-center w-full justify-center">
                         회원 정보 수정
                     </h2>
                     
@@ -79,14 +79,14 @@ export default function EditProfile() {
                             </ul>
                         </div>
                     )}
-                    <div className="flex justify-center w-full mt-6 text-xs text-gray-400">
+                    <div className="flex justify-center w-full mt-6 text-xs text-base-content/70">
                         <Link to="/gamemain" className="hover:underline cursor-pointer">게임으로 돌아가기</Link>
                     </div>
 
                     <div className="flex justify-center w-full mt-2">
                         <span
                             onClick={handleDeleteAccount}
-                            className="bg-error text-white text-xs cursor-pointer border border-error px-1 py-0.5 rounded"
+                            className="bg-error text-error-content text-xs cursor-pointer border border-error px-1 py-0.5 rounded"
                         >
                             회원 탈퇴
                         </span>
