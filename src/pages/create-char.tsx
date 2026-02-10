@@ -35,12 +35,12 @@ export default function CreateChar() { // onStartGame prop 제거
     
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="card w-full max-w-md bg-white shadow-xl border border-gray-200">
-                <h2 className="card-title text-3xl font-black text-gray-800 mb-2 uppercase tracking-widest text-center w-full justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+            <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
+                <h2 className="card-title text-3xl font-black text-base-content mb-2 uppercase tracking-widest text-center w-full justify-center">
                     TRPG Online
                 </h2>
-                <p className="text-gray-500 mb-6 font-medium tracking-widest text-center w-full justify-center">이름을 입력하세요.</p>
+                <p className="text-base-content/80 mb-6 font-medium tracking-widest text-center w-full justify-center">이름을 입력하세요.</p>
 
                 <input
                     type="text"
@@ -54,13 +54,13 @@ export default function CreateChar() { // onStartGame prop 제거
                 <button
                     onClick={handleJoinWorld}
                     disabled={!inputName.trim()}
-                    className="btn btn-primary w-full mt-4 text-white font-bold"
+                    className="btn btn-primary w-full mt-4 text-primary-content font-bold"
                 >
                     시작하기
                 </button>
                 <button
                     onClick={handleBackToLogin}
-                    className="btn btn-ghost btn-sm mt-2 text-gray-400"
+                    className="btn btn-ghost btn-sm mt-2 text-base-content/70"
                 >
                     로그인 화면으로 돌아가기
                 </button>

@@ -1,20 +1,19 @@
 import { create } from 'zustand';
 import type { Message } from '../types';
 
-// 랜덤으로 할당할 배경색 Tailwind 클래스 배열
-const randomColors = [
-    'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-lime-500',
-    'bg-emerald-500', 'bg-cyan-500', 'bg-indigo-500', 'bg-violet-500',
-    'bg-fuchsia-500', 'bg-rose-500'
+// 테마에 맞는 시맨틱 컬러 사용
+const themeColors = [
+    'bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 
+    'bg-success', 'bg-warning', 'bg-error',
 ];
 
 const getSenderColor = (sender: string, myName: string) => {
     switch (sender) {
-        case 'GM': return 'bg-blue-500';
-        case myName: return 'bg-gray-500';
+        case 'GM': return 'bg-secondary';
+        case myName: return 'bg-neutral';
         default: {
-            const randomIndex = Math.floor(Math.random() * randomColors.length);
-            return randomColors[randomIndex];
+            const randomIndex = Math.floor(Math.random() * themeColors.length);
+            return themeColors[randomIndex];
         }
     }
 }

@@ -84,37 +84,37 @@ export default function SidebarQuizButton() {
     return (
         <>
             {/* --- 사이드바 하단 버튼 영역 --- */}
-            <div className="p-4 bg-base-300/50 border-t border-base-300 flex items-center gap-3 mt-auto">
+            <div className="p-4 bg-base-100 flex items-center gap-3 mt-auto">
                 <div 
                     className="tooltip tooltip-right before:whitespace-pre-wrap before:max-w-[200px]" 
                     data-tip={quizText}
                     onMouseEnter={handleMouseEnter}
                 >
-                                                            <button
-                                                                className="btn btn-circle bg-slate-800 hover:bg-slate-900 text-white border-none shadow-lg hover:scale-110 transition-all flex items-center justify-center text-lg"
-                                                                onClick={() => setIsPopupOpen(true)}
-                                                            >                        ?
+                    <button
+                        className="btn btn-circle bg-base-300 hover:bg-base-300 text-base-100 border-none shadow-lg hover:scale-110 transition-all flex items-center justify-center text-lg"
+                         onClick={() => setIsPopupOpen(true)}
+                    > ?
                     </button>
                 </div>
             </div>
 
             {/* --- 정답 입력 팝업 (흰색 테마) --- */}
             {isPopupOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-white/60 backdrop-blur-md">
-                    <div className="bg-white p-8 rounded-3xl border border-slate-100 w-96 shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in duration-300">
-                        <h3 className="text-slate-900 font-extrabold text-xl mb-4 flex items-center gap-2">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-base-100/60 backdrop-blur-md">
+                    <div className="bg-base-100 p-8 rounded-3xl border border-base-200 w-96 shadow-2xl animate-in fade-in zoom-in duration-300">
+                        <h3 className="text-base-content font-extrabold text-xl mb-4 flex items-center gap-2">
                             <span className="text-2xl">💡</span> 오늘의 도감 퀴즈
                         </h3>
 
                         {/* 문제 표시 영역 */}
-                        <div className="bg-slate-50 p-5 rounded-2xl mb-6 text-base text-slate-700 leading-relaxed border border-slate-100 min-h-[80px] italic">
+                        <div className="bg-base-200 p-5 rounded-2xl mb-6 text-base text-base-content/90 leading-relaxed border border-base-200 min-h-[80px] italic">
                             "{quizText}"
                         </div>
 
                         {/* 정답 입력창 */}
                         <input 
                             type="text"
-                            className="input input-bordered w-full bg-white border-slate-200 text-slate-900 focus:border-slate-500 h-12 rounded-xl mb-6 transition-all outline-none"
+                            className="input input-bordered w-full bg-base-100 border-base-300 text-base-content focus:border-primary h-12 rounded-xl mb-6 transition-all outline-none"
                             placeholder="정답을 입력하세요..."
                             value={userAnswer}
                             onChange={(e) => setUserAnswer(e.target.value)}
@@ -126,8 +126,8 @@ export default function SidebarQuizButton() {
                         {/* 버튼 그룹 */}
                         <div className="flex gap-3">
                             <button 
-                                className={`flex-1 h-12 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all ${
-                                    isSubmitting ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-900'
+                                className={`flex-1 h-12 text-base-content font-bold rounded-xl shadow-lg active:scale-95 transition-all ${
+                                    isSubmitting ? 'bg-base-200 cursor-not-allowed' : 'bg-base-100 hover:bg-base-200'
                                 }`}
                                 onClick={handleQuizSubmit}
                                 disabled={isSubmitting}
@@ -135,7 +135,7 @@ export default function SidebarQuizButton() {
                                 {isSubmitting ? "확인 중..." : "제출하기"}
                             </button>
                             <button 
-                                className="px-6 h-12 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl transition-all font-medium" 
+                                className="px-6 h-12 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-xl transition-all font-medium" 
                                 onClick={() => setIsPopupOpen(false)}
                             >
                                 닫기

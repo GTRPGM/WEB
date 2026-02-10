@@ -45,11 +45,11 @@ export default function ChangeEmail() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="card w-full max-w-md bg-white shadow-xl border border-gray-200">
+        <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+            <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
                 <div className="card-body items-center text-center">
                     <form onSubmit={handleSubmit} className="w-full">
-                        <h2 className="card-title text-3xl font-black text-gray-800 mb-6 text-center w-full justify-center">
+                        <h2 className="card-title text-3xl font-black text-base-content mb-6 text-center w-full justify-center">
                             이메일 변경
                         </h2>
                         <div className="form-control w-full gap-4">
@@ -65,12 +65,12 @@ export default function ChangeEmail() {
                             {success && <div className="text-success text-sm mt-2">{success}</div>}
                             <button
                                 type="submit"
-                                className="btn btn-primary w-full mt-4 text-white font-bold"
+                                className="btn btn-primary w-full mt-4 text-primary-content font-bold"
                             >
                                 이메일 변경
                             </button>
                         </div>
-                        <div className="flex justify-center w-full mt-6 text-xs text-gray-400">
+                        <div className="flex justify-center w-full mt-6 text-xs text-base-content/70">
                             <Link to="/edit-profile" className="hover:underline cursor-pointer">뒤로 가기</Link>
                         </div>
                     </form>
