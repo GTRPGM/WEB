@@ -58,7 +58,7 @@ export default function Sidebar() {
                             placeholder="적 이름 또는 키워드 검색..."
                             className="input input-bordered input-sm w-full bg-base-200 mb-4"
                             value={searchTerm}
-                            onChange={(e) => setEnemySearchTerm(e.target.value)}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <div className="space-y-2">
                             {filteredEnemies.map((enemy) => (
