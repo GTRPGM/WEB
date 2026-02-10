@@ -1,20 +1,13 @@
 import { create } from 'zustand';
 import type { Message } from '../types';
 
-// 테마에 맞는 시맨틱 컬러 사용
-const themeColors = [
-    'bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 
-    'bg-success', 'bg-warning', 'bg-error',
-];
+const themeColors = ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 'bg-success', 'bg-warning', 'bg-error'];
 
 const getSenderColor = (sender: string, myName: string) => {
     switch (sender) {
         case 'GM': return 'bg-secondary';
         case myName: return 'bg-neutral';
-        default: {
-            const randomIndex = Math.floor(Math.random() * themeColors.length);
-            return themeColors[randomIndex];
-        }
+        default: return themeColors[Math.floor(Math.random() * themeColors.length)];
     }
 }
 
@@ -22,72 +15,85 @@ interface ChatState {
     messages: Message[];
     isGMThinking: boolean;
     sessionId: string | null;
-    playerId: string | null; // Add playerId to state
-    isLoadingGameSession: boolean; // 게임 세션 로딩 상태 추가
-    currentActId: string | null; // 현재 Act ID
-    currentSequenceId: string | null; // 현재 Sequence ID
+    playerId: string | null;
+    isLoadingGameSession: boolean;
+    currentActId: string | null;
+    currentSequenceId: string | null;
+    typingSentences: string[]; // 타자 문장 저장소
 
     addMessage: (sender: string, content: string, myName: string, type?: Message['type']) => string;
-    updateMessageContent: (id: string, content:string) => void;
+    updateMessageContent: (id: string, content: string) => void;
     setGmthinking: (thinking: boolean) => void;
     setSessionId: (id: string) => void;
-    setPlayerId: (id: string) => void; // Add setPlayerId action
-    setLoadingGameSession: (isLoading: boolean) => void; // setLoadingGameSession 액션 추가
-    setCurrentActAndSequenceId: (actId: string, sequenceId: string) => void; // Act 및 Sequence ID 설정 액션 추가
-
-    addSummaryMessage: (content: string, myName: string) => string; // 요약 메시지 추가 액션
+    setPlayerId: (id: string) => void;
+    setLoadingGameSession: (isLoading: boolean) => void;
+    setCurrentActAndSequenceId: (actId: string, sequenceId: string) => void;
+    addSummaryMessage: (content: string, myName: string) => string;
+    addTypingSentences: (newSentences: string[]) => void; // 문장 추가 액션
+    
+    // 💡 로그아웃 시 모든 상태를 초기화하는 액션 추가
+    resetAll: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
     messages: [],
     isGMThinking: false,
     sessionId: null,
-    playerId: null, // Initialize playerId
-    isLoadingGameSession: false, // 초기 상태에 isLoadingGameSession 추가
-    currentActId: null, // 초기 Act ID
-    currentSequenceId: null, // 초기 Sequence ID
+    playerId: null,
+    isLoadingGameSession: false,
+    currentActId: null,
+    currentSequenceId: null,
+    typingSentences: [], 
 
     addMessage: (sender, content, myName, type) => {
         const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newMessage: Message = {
-            id,
-            sender,
-            content,
+            id, sender, content,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             color: getSenderColor(sender, myName),
             isGM: sender === 'GM',
-            isUserMessage: sender === myName, // isUserMessage 속성 추가
+            isUserMessage: sender === myName,
             type,
         };
         set((state) => ({ messages: [...state.messages, newMessage] }));
         return id;
     },
-    
+
     updateMessageContent: (id, content) => set((state) => ({
-        messages: state.messages.map((msg) =>
-            msg.id === id ? { ...msg, content } : msg
-        )
+        messages: state.messages.map((msg) => msg.id === id ? { ...msg, content } : msg)
     })),
 
     setGmthinking: (thinking) => set({ isGMThinking: thinking }),
     setSessionId: (id: string) => set({ sessionId: id }),
-    setPlayerId: (id: string) => set({ playerId: id }), // Implement setPlayerId
-    setLoadingGameSession: (isLoading) => set({ isLoadingGameSession: isLoading }), // setLoadingGameSession 구현
+    setPlayerId: (id: string) => set({ playerId: id }),
+    setLoadingGameSession: (isLoading) => set({ isLoadingGameSession: isLoading }),
     setCurrentActAndSequenceId: (actId, sequenceId) => set({ currentActId: actId, currentSequenceId: sequenceId }),
 
     addSummaryMessage: (content, myName) => {
         const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newMessage: Message = {
-            id,
-            sender: 'GM', // Always GM for summary
-            content,
+            id, sender: 'GM', content,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             color: getSenderColor('GM', myName),
-            isGM: true,
-            isUserMessage: false,
-            type: 'narration', // Always narration for summary
+            isGM: true, isUserMessage: false, type: 'narration',
         };
         set((state) => ({ messages: [...state.messages, newMessage] }));
         return id;
     },
+
+    addTypingSentences: (newSentences) => set((state) => ({
+        typingSentences: Array.from(new Set([...state.typingSentences, ...newSentences])) 
+    })),
+
+    // 💡 모든 상태 초기화 구현
+    resetAll: () => set({
+        messages: [],
+        isGMThinking: false,
+        sessionId: null,
+        playerId: null,
+        isLoadingGameSession: false,
+        currentActId: null,
+        currentSequenceId: null,
+        typingSentences: []
+    }),
 }));

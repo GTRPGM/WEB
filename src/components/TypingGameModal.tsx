@@ -2,103 +2,106 @@ import { useEffect, memo, useCallback } from "react";
 import { useTypingGame } from "../hooks/useTypingGame";
 import { typingService } from "../services/typingService";
 
-interface TypingGameModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onStatusChange: (open: boolean) => void;
-}
-
-
-const TypingGameModal = memo(({ isOpen, onClose, onStatusChange }: TypingGameModalProps) => {
+const TypingGameModal = memo(({ isOpen, onClose, onStatusChange }: { isOpen: boolean; onClose: () => void; onStatusChange: (open: boolean) => void; }) => {
     const { 
-        targetText, 
-        userInput, 
-        timeLeft, 
-        isFinished, 
-        correctCount, 
-        handleInput, 
-        startNewGame 
+        targetText, userInput, timeLeft, isFinished, isStarted,
+        correctCount, handleInput, prepareSentences, startGame, 
+        sentencesLoaded, resetGame 
     } = useTypingGame();
 
+    // 저장 로직을 포함한 닫기
     const handleSaveAndClose = useCallback(() => {
-        if (isFinished) {
+        if (correctCount > 0) {
             typingService.saveTypingResult({ correctCount, avgWpm: 0 });
         }
         onClose();
-    }, [isFinished, correctCount, onClose]);
-
+    }, [correctCount, onClose]);
 
     useEffect(() => {
         if (isOpen) {
-            startNewGame();
-            onStatusChange(isOpen);
+            prepareSentences(); 
+        } else {
+            resetGame();
         }
-        onStatusChange(isOpen); 
-    }, [isOpen, startNewGame, onStatusChange]);
+        onStatusChange(isOpen);
+    }, [isOpen, prepareSentences, resetGame, onStatusChange]);
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            {/* 배경 오버레이 */}
+            {/* 배경 클릭 시 닫기 */}
             <div className="absolute inset-0 bg-neutral/50 backdrop-blur-sm" onClick={onClose}></div>
+            
+            <div className="relative z-[10000] w-full max-w-2xl bg-base-100 p-8 rounded-3xl shadow-2xl border border-base-300 animate-in fade-in zoom-in duration-200">
+                
+                {/* 우측 상단 X 버튼 (상시 노출) */}
+                <button 
+                    onClick={onClose} 
+                    className="absolute top-6 right-6 btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-base-content transition-colors"
+                >
+                    ✕
+                </button>
 
-            {/* 모달 창 본문 */}
-            <div className="relative z-[10000] w-full max-w-2xl bg-base-100 border border-base-300 shadow-2xl p-8 rounded-3xl text-base-content animate-in fade-in zoom-in duration-200">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-black uppercase tracking-tight text-base-content">제한시간: 1분</h3>
-                    <div className="flex items-center gap-4">
-                        <span className="badge badge-lg font-bold bg-info/20 text-info border-none px-4 py-4">성공: {correctCount}</span>
-                        <button onClick={onClose} className="btn btn-ghost btn-sm btn-circle">✕</button>
+                {!isStarted ? (
+                    /* 1. 게임 시작 전 */
+                    <div className="text-center py-10">
+                        <h3 className="text-3xl font-black mb-6 uppercase tracking-tight text-primary">Ready to Type?</h3>
+                        <div className="bg-base-200 p-8 rounded-2xl mb-8 min-h-[120px] flex items-center justify-center italic text-base-content/70 text-lg">
+                            {sentencesLoaded ? "문장 준비 완료! 시작 버튼을 누르세요." : "서버에서 문장을 보충하는 중..."}
+                        </div>
+                        <button 
+                            className="btn btn-primary w-full h-16 text-xl font-bold rounded-2xl shadow-lg shadow-primary/20" 
+                            onClick={startGame} 
+                            disabled={!sentencesLoaded}
+                        >
+                            게임 시작
+                        </button>
                     </div>
-                </div>
-
-                {/* 시간 바 */}
-                <div className="w-full bg-base-200 h-2.5 rounded-full mb-8 overflow-hidden border border-base-200">
-                    <div 
-                        className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 10 ? 'bg-error' : 'bg-primary'}`}
-                        style={{ width: `${(timeLeft / 60) * 100}%` }}
-                    ></div>
-                </div>
-
-                {!isFinished ? (
+                ) : !isFinished ? (
+                    /* 2. 게임 진행 중 */
                     <div className="space-y-6">
-                        <div className="bg-base-200 p-10 rounded-2xl border border-base-200 shadow-inner relative min-h-[140px] flex items-center justify-center">
-                            <div className="absolute inset-0 p-10 text-base-content/50 text-2xl font-mono break-all leading-relaxed select-none">
-                                {targetText}
+                        <div className="flex justify-between items-end">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-xs font-bold text-base-content/50 uppercase tracking-widest">Progress</span>
+                                <span className="badge badge-lg font-bold bg-primary/10 text-primary border-none px-4 py-4">성공: {correctCount}</span>
                             </div>
-                            <div className="relative text-2xl font-mono break-all leading-relaxed w-full text-left">
+                            <span className={`font-mono text-3xl font-black ${timeLeft < 10 ? 'text-error animate-pulse' : ''}`}>{timeLeft}s</span>
+                        </div>
+
+                        <div className="w-full bg-base-200 h-2 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${(timeLeft / 60) * 100}%` }}></div>
+                        </div>
+
+                        <div className="bg-base-200 p-8 rounded-2xl border border-base-200 shadow-inner min-h-[180px] flex flex-col items-center justify-center text-center">
+                            <div className="text-base-content/30 text-xl font-mono break-all leading-relaxed mb-4 select-none w-full">{targetText}</div>
+                            <div className="text-2xl font-mono break-all leading-relaxed w-full border-t border-base-300 pt-4">
                                 {userInput.split("").map((char, i) => (
-                                    <span key={i} className={char === targetText[i] ? "text-primary font-bold" : "text-error bg-error/10"}>
-                                        {char}
-                                    </span>
+                                    <span key={i} className={char === targetText[i] ? "text-primary font-bold" : "text-error bg-error/10"}>{char}</span>
                                 ))}
+                                <span className="inline-block w-0.5 h-7 bg-primary animate-pulse ml-1 align-middle"></span>
                             </div>
                         </div>
 
-                        <input
-                            className="input input-bordered w-full bg-base-100 border-base-300 focus:border-primary text-xl h-16 px-6 shadow-sm"
-                            value={userInput}
-                            onChange={(e) => handleInput(e.target.value)}
-                            placeholder="최대한 빠르게 타이핑하세요!"
-                            autoFocus
+                        <input 
+                            className="input input-bordered w-full h-16 text-xl px-6 bg-base-100 focus:border-primary shadow-sm" 
+                            value={userInput} 
+                            onChange={(e) => handleInput(e.target.value)} 
+                            placeholder="위 문장을 똑같이 입력하세요!" 
+                            autoFocus 
                         />
-                        <div className="text-center">
-                            <span className={`text-2xl font-black ${timeLeft < 10 ? 'text-error animate-bounce' : 'text-base-content/70'}`}>
-                                {timeLeft}s
-                            </span>
-                        </div>
                     </div>
                 ) : (
-                    <div className="text-center py-10 animate-in slide-in-from-bottom-4">
-                        <h4 className="text-3xl font-black text-base-content mb-2">시간 종료!</h4>
-                        <div className="bg-info/10 rounded-2xl p-8 my-8 border border-info/20">
-                            <p className="text-base-content/80 font-bold uppercase tracking-widest mb-1">최종 기록</p>
-                            <p className="text-6xl font-black text-primary">{correctCount} <span className="text-2xl">문장 성공</span></p>
+                    /* 3. 게임 종료 */
+                    <div className="text-center py-10">
+                        <h4 className="text-4xl font-black text-primary mb-4 uppercase tracking-tighter">Time Over!</h4>
+                        <div className="bg-primary/5 rounded-3xl p-10 mb-8 border border-primary/10">
+                            <p className="text-6xl font-black text-primary mb-2">{correctCount}</p>
+                            <p className="text-base-content/60 font-bold tracking-widest uppercase text-sm">Sentences Completed</p>
                         </div>
-                        <div className="flex gap-4">
-                            <button className="btn btn-primary flex-1 text-primary-content font-bold h-14" onClick={handleSaveAndClose}>기록 저장 및 닫기</button>
-                            <button className="btn btn-outline border-base-300 flex-1 h-14 text-base-content/90" onClick={startNewGame}>다시 도전</button>
+                        <div className="flex flex-col gap-3">
+                            <button className="btn btn-primary w-full h-14 font-bold text-lg" onClick={handleSaveAndClose}>기록 저장 후 닫기</button>
+                            <button className="btn btn-outline w-full h-14 font-bold" onClick={startGame}>다시 도전</button>
                         </div>
                     </div>
                 )}
