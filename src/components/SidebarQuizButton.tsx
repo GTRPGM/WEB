@@ -78,7 +78,7 @@ export default function SidebarQuizButton() {
     return (
         <>
             {/* 사이드바 버튼 영역 */}
-            <div className="p-4 bg-base-100 flex items-center gap-3 mt-auto border-t border-base-200">
+            <div className="p-4 bg-base-100 flex items-center gap-3 mt-auto">
                 <div 
                     className="tooltip tooltip-right before:whitespace-pre-wrap before:max-w-[200px]" 
                     data-tip={quizText}
@@ -90,7 +90,6 @@ export default function SidebarQuizButton() {
                     > ?
                     </button>
                 </div>
-                <span className="text-[10px] font-bold text-base-content/30 uppercase tracking-widest">Daily Quiz</span>
             </div>
 
             {/* 정답 입력 팝업 */}
