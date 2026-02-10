@@ -90,11 +90,10 @@ export default function SidebarQuizButton() {
                     data-tip={quizText}
                     onMouseEnter={handleMouseEnter}
                 >
-                    <button 
-                        className="btn btn-circle bg-slate-800 hover:bg-slate-900 text-white border-none shadow-lg hover:scale-110 transition-all flex items-center justify-center text-lg"
-                        onClick={() => setIsPopupOpen(true)}
-                    >
-                        ?
+                                                            <button
+                                                                className="btn btn-circle bg-slate-800 hover:bg-slate-900 text-white border-none shadow-lg hover:scale-110 transition-all flex items-center justify-center text-lg"
+                                                                onClick={() => setIsPopupOpen(true)}
+                                                            >                        ?
                     </button>
                 </div>
             </div>
