@@ -28,18 +28,6 @@ export function useGameChat() {
             return;
         }
         
-        if (!session_id) {
-            console.log("세션 id가 없어 초기화를 시작합니다...");
-            const freshSessionId = await initializeGame(); 
-
-            if(!freshSessionId) {
-                addMessage('System', '게임 세션을 시작할 수 없습니다.');
-                return;
-            }
-        // 중요: 스토어에서 다시 꺼내지 말고, 방금 받은 값을 변수에 넣습니다.
-            session_id = freshSessionId;
-        }
-
         setGmthinking(true);
         addMessage(myName, text, myName, 'user');
 
