@@ -27,6 +27,14 @@ export interface ENEMY {
   type: string;
 }
 
+export interface ENEMY {
+  enemy_id: string;
+  name: string;
+  base_difficulty: string;
+  description: string;
+  type: string;
+}
+
 export interface NPC {
   npc_id: string;
   name: string;

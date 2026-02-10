@@ -4,7 +4,6 @@ import { useItemStore } from "../store/useItemStore";
 import SidebarQuizButton from "./SidebarQuizButton"; // 분리한 퀴즈 컴포넌트 임포트
 
 export default function Sidebar() {
-    // 1. Store에서 데이터 및 가져오기 함수 추출
     const { allEnemies, fetchEnemies } = useENEMYStore();
     const { allItems, fetchItems } = useItemStore();
     const { allNPCs, fetchNPCs } = useNPCStore();
@@ -58,7 +57,7 @@ export default function Sidebar() {
                             placeholder="적 이름 또는 키워드 검색..."
                             className="input input-bordered input-sm w-full bg-base-200 mb-4"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => setEnemySearchTerm(e.target.value)}
                         />
                         <div className="space-y-2">
                             {filteredEnemies.map((enemy) => (
