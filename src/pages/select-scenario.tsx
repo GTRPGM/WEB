@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getScenarios, startSession } from "../services/gameService";
 import { useChatStore } from "../store/useChatStore";
-// import GameLoader from "../components/GameLoader"; // GameLoader 임포트 제거
 
 interface Scenario {
     scenario_id: string;
@@ -12,25 +11,21 @@ interface Scenario {
 export default function SelectScenario() {
     const [scenarios, setScenarios] = useState<Scenario[]>([]);
     const [selectedScenarioId, setSelectedScenarioId] = useState<string>('');
-    const [locationInput, setLocationInput] = useState<string>('시작 지점');
-    const [isLoadingScenarios, setIsLoadingScenarios] = useState<boolean>(false); // 시나리오 로딩을 위한 로컬 상태
-    // const [isLoading, setIsLoading] = useState<boolean>(false); // 제거
+    const [locationInput, setLocationInput] = useState<string>('어두운 밤, 낡은 여관 앞');
+    const [isLoadingScenarios, setIsLoadingScenarios] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const setSessionId = useChatStore((state) => state.setSessionId);
-    const setPlayerId = useChatStore((state) => state.setPlayerId); // Add setPlayerId
-    const setLoadingGameSession = useChatStore((state) => state.setLoadingGameSession); // setLoadingGameSession 가져오기
+    const setPlayerId = useChatStore((state) => state.setPlayerId);
+    const setLoadingGameSession = useChatStore((state) => state.setLoadingGameSession);
 
-    // GameLoader 완료 핸들러 제거
-    // const handleGameLoaderComplete = useCallback(() => {
-    //     setIsLoading(false);
-    //     navigate('/gamemain');
-    // }, [navigate]);
+    // 💡 배경 이미지 경로 고정
+    const bgImageUrl = "/assets/background/login-bg.png";
 
     useEffect(() => {
         const fetchScenarios = async () => {
-            setIsLoadingScenarios(true); // 시나리오 불러올 때 로딩 표시
-            setError(null); // 새로운 fetch 시도 전에 에러 초기화
+            setIsLoadingScenarios(true);
+            setError(null);
             try {
                 const fetchedScenarios = await getScenarios();
                 setScenarios(fetchedScenarios);
@@ -41,7 +36,7 @@ export default function SelectScenario() {
                 setError('시나리오를 불러오는 데 실패했습니다.');
                 console.error(err);
             } finally {
-                setIsLoadingScenarios(false); // fetch가 성공하든 실패하든 로딩 종료
+                setIsLoadingScenarios(false);
             }
         };
         fetchScenarios();
@@ -57,55 +52,65 @@ export default function SelectScenario() {
             return;
         }
 
-        setLoadingGameSession(true); // 전역 게임 세션 로딩 시작
+        setLoadingGameSession(true);
         setError(null);
         try {
             const sessionData = await startSession(selectedScenarioId, locationInput);
             setSessionId(sessionData.session_id);
-            setPlayerId(sessionData.player_id); // Store player_id
-            navigate('/gamemain'); // 게임 메인으로 이동 (로딩 화면은 App.tsx에서 전역적으로 관리)
+            setPlayerId(sessionData.player_id);
+            navigate('/gamemain');
         } catch (err) {
             setError('게임 세션을 시작하는 데 실패했습니다.');
             console.error(err);
-            setLoadingGameSession(false); // 오류 발생 시 전역 로딩 종료
+            setLoadingGameSession(false);
         }
     };
 
     return (
-        <>
-            {/* GameLoader는 App.tsx에서 전역적으로 관리하므로 여기서 렌더링 제거 */}
-            {/* {isLoading && <GameLoader onLoadingComplete={handleGameLoaderComplete} />} */}
+        <div 
+            className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat relative px-4"
+            style={{ 
+                backgroundImage: `url('${bgImageUrl}')`,
+                backgroundColor: '#1a1a1a'
+            }}
+        >
+            {/* 배경 오버레이 */}
+            <div className="absolute inset-0 bg-base-100/70 backdrop-blur-[5px]"></div>
 
-            {/* 시나리오 선택 UI는 시나리오 로딩 중이 아니고 전역 게임 세션 로딩 중이 아닐 때만 렌더링 */}
-            {/* !isLoading && ( */}
-            <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
-                <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300 p-6">
-                    <h2 className="card-title text-3xl font-black text-base-content mb-6 uppercase tracking-widest text-center w-full justify-center">
-                        시나리오 선택
-                    </h2>
+            {/* 카드 박스 */}
+            <div className="relative z-10 card w-full max-w-md bg-base-100/90 backdrop-blur-md shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-500">
+                <div className="card-body p-8 sm:p-10">
+                    
+                    {/* 타이틀 섹션 */}
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-black text-primary mb-2 uppercase tracking-tighter drop-shadow-md">
+                            Select Journey
+                        </h2>
+                        <div className="h-1 w-12 bg-primary mx-auto rounded-full opacity-50 mb-4"></div>
+                        <p className="text-base-content/70 font-bold text-[10px] uppercase tracking-[0.2em] italic">
+                            Choose your destiny
+                        </p>
+                    </div>
 
-                    {isLoadingScenarios && ( // 시나리오 로딩 스피너
-                        <div className="text-center my-4">
+                    {isLoadingScenarios ? (
+                        <div className="flex flex-col items-center py-10">
                             <span className="loading loading-spinner loading-lg text-primary"></span>
-                            <p className="text-base-content/90 mt-2">시나리오 불러오는 중...</p>
+                            <p className="text-sm font-bold text-base-content/60 mt-4 animate-pulse">시나리오 탐색 중...</p>
                         </div>
-                    )}
-
-                    {error && (
-                        <div role="alert" className="alert alert-error mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    ) : error ? (
+                        <div className="alert alert-error bg-error/10 border-error/20 text-error text-xs font-bold mb-4 rounded-2xl p-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             <span>{error}</span>
                         </div>
-                    )}
-
-                    {!isLoadingScenarios && scenarios.length > 0 ? ( // 시나리오 로딩이 끝나고 시나리오가 있을 때만 렌더링
-                        <>
-                            <div className="form-control w-full mb-4">
-                                <label className="label">
-                                    <span className="label-text">시나리오를 선택하세요</span>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* 시나리오 선택 */}
+                            <div className="form-control w-full">
+                                <label className="label text-[10px] font-black uppercase text-base-content/40 tracking-widest px-1">
+                                    Choose Scenario
                                 </label>
                                 <select
-                                    className="select select-bordered w-full"
+                                    className="select select-bordered w-full bg-base-200/50 focus:select-primary font-bold h-12 rounded-xl"
                                     value={selectedScenarioId}
                                     onChange={(e) => setSelectedScenarioId(e.target.value)}
                                 >
@@ -117,34 +122,43 @@ export default function SelectScenario() {
                                 </select>
                             </div>
 
-                            <div className="form-control w-full mb-6">
-                                <label className="label">
-                                    <span className="label-text">시작 지점을 입력하세요</span>
+                            {/* 시작 지점 입력 */}
+                            <div className="form-control w-full">
+                                <label className="label text-[10px] font-black uppercase text-base-content/40 tracking-widest px-1">
+                                    Starting Point
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="예: 어두운 숲 속 동굴 입구"
-                                    className="input input-bordered w-full"
+                                    placeholder="예: 안개 자욱한 숲속 입구"
+                                    className="input input-bordered w-full bg-base-200/50 focus:input-primary font-medium h-12 rounded-xl"
                                     value={locationInput}
                                     onChange={(e) => setLocationInput(e.target.value)}
                                 />
+                                <label className="label">
+                                    <span className="label-text-alt text-base-content/40 text-[9px] italic">모험이 시작될 구체적인 장소를 입력하세요.</span>
+                                </label>
                             </div>
 
-                            <button
-                                onClick={handleStartGame}
-                                className="btn btn-primary w-full mt-4 text-primary-content font-bold"
-                                disabled={!selectedScenarioId || !locationInput.trim()}
-                            >
-                                게임 시작
-                            </button>
-                        </>
-                    ) : (
-                        // 시나리오 로딩 중이 아니고 시나리오가 없을 때 메시지
-                        !isLoadingScenarios && !error && <p className="text-center text-base-content/80">불러올 시나리오가 없습니다.</p>
+                            {/* 시작 버튼 */}
+                            <div className="pt-4">
+                                <button
+                                    onClick={handleStartGame}
+                                    disabled={!selectedScenarioId || !locationInput.trim()}
+                                    className="btn btn-primary w-full h-14 text-lg font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all disabled:opacity-50"
+                                >
+                                    모험 시작
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {!isLoadingScenarios && scenarios.length === 0 && !error && (
+                        <p className="text-center text-xs font-bold text-base-content/30 py-10 uppercase tracking-widest">
+                            No scenarios found.
+                        </p>
                     )}
                 </div>
             </div>
-            {/* ) */}
-        </>
+        </div>
     );
 }
