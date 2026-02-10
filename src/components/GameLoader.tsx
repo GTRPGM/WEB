@@ -1,7 +1,11 @@
 import { useState } from "react";
 // import api from "../apiinterceptor"; // api import removed as it's no longer used
 
-export default function GameLoader() {
+interface GameLoaderProps {
+  progress?: number; // Optional progress from 0 to 100
+}
+
+export default function GameLoader({ progress = 0 }: GameLoaderProps) {
     const [loadingText] = useState("게임 데이터를 불러오는 중...");
     const [currentTip] = useState("잠시만 기다려주세요.");
 
@@ -35,8 +39,8 @@ export default function GameLoader() {
                 <div className="w-full h-3 bg-base-200 rounded-full border border-base-300 p-[1px] shadow-inner">
                     <div
                         className="h-full bg-primary rounded-full transition-all duration-300 ease-out shadow-md"
-                    ></div>
-                </div>
+                        style={{ width: `${progress}%` }}
+                    ></div>                </div>
 
                 <div className="mt-10 h-4">
                     <p className="text-[11px] text-base-content/80 font-bold italic">

@@ -49,6 +49,7 @@ export default function GameMain() {
   const isOpeningFetched = useRef(false); // 오프닝 메시지를 한 번만 가져오기 위한 ref
   const [isTypingModalOpen, setIsTypingModalOpen] = useState(false);
   const [isTypingActive, setIsTypingActive] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0); // Add loading progress state
 
   const isAnyGameActive = isMiniGameActive || isTypingActive;
 
@@ -57,9 +58,13 @@ export default function GameMain() {
     if (sessionId && !isOpeningFetched.current && messages.length === 0) {
         isOpeningFetched.current = true; // 플래그 설정
         setLoadingGameSession(true); // Start game session loading
+        setLoadingProgress(10); // Initial progress
+
         const fetchOpening = async () => {
             try {
                 const summary = await getOpeningSummary(sessionId);
+                setLoadingProgress(60); // Progress after fetching summary
+                await new Promise(resolve => setTimeout(resolve, 50)); // Allow render to catch up
                 
                 // BGM Fade-out logic moved here
                 if (window.bgm) {
@@ -76,28 +81,33 @@ export default function GameMain() {
                     }, 50);
                 }
                 
-                setLoadingGameSession(false); // 로딩 화면을 요약 출력 시작과 동시에 사라지게 함
+                // Simulate final progress fill and then hide loader
+                setLoadingProgress(100); // Progress reaches 100%
+                await new Promise(resolve => setTimeout(resolve, 50)); // Allow render to catch up
                 const msgId = addMessage('GM', '', myName, 'narration'); // 빈 메시지 추가
+                setLoadingGameSession(false); // 로딩 화면을 요약 출력 시작과 동시에 사라지게 함
                 await processStream(summary, (accumulated: string) => {
                                 updateMessageContent(msgId, accumulated);
                             });
+                
             } catch (error) {                
                 console.error("Failed to fetch opening summary:", error);
                 addMessage('GM', '오프닝을 불러오는 데 실패했습니다.', myName, 'system'); // 에러 메시지는 일반 addMessage 사용
+                setLoadingGameSession(false); // Hide loader on error
             } finally {
                 // setGmthinking(false); // 이제 useGameChat에서 처리
             }
         };
         fetchOpening();
     }
-  }, [sessionId, addMessage, updateMessageContent, setGmthinking, setLoadingGameSession, processStream, messages.length, myName, addSummaryMessage]);
+  }, [sessionId, addMessage, updateMessageContent, setGmthinking, setLoadingGameSession, processStream, messages.length, myName, addSummaryMessage]); // Added setLoadingProgress to dependency array
 
   // Conditionally render GameLoader
   if (isLoadingGameSession) {
-    return <GameLoader />; // GameLoader는 내부적으로 onSummaryLoaded를 호출하지 않음
+    return <GameLoader progress={loadingProgress} />; // Pass progress prop
   }
 
-  return (
+    return (
     <div className="drawer lg:drawer-open h-screen overflow-hidden">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
     
